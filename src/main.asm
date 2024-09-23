@@ -112,6 +112,13 @@ save_sram_to_flash:
 	push	de
 	push	hl
 
+	IF DEF(WRAM_BANK_NUMBER)
+		ldh a,[rSMBK] ; save RAM Bank# to stack
+		push af
+		ld a,WRAM_BANK_NUMBER
+		ldh [rSMBK],a ; load RAM Bank 1
+	ENDC
+
 	ld		a, BANK(erase_and_write_ram_banks)
 	ld		[rROMB0], a
 	call	erase_and_write_ram_banks
@@ -121,6 +128,11 @@ save_sram_to_flash:
 		ld		a, [_current_game_bank]
 	ENDC
 	ld		[rROMB0], a
+
+	IF DEF(WRAM_BANK_NUMBER)
+		pop af
+		ldh [rSMBK],a ; set to previous wram bank
+	ENDC
 
 	pop		hl
 	pop		de
@@ -231,18 +243,18 @@ erase_and_write_ram_banks:
 
 	;erase 64kb block
 	ld		hl, erase_one_flash_erase_block
-	ld		de, WRAM0_FREE_SPACE
+	ld		de, WRAM_FREE_SPACE
 	ld		bc, erase_one_flash_erase_block_end - erase_one_flash_erase_block
 	call	copy_data
-	call	WRAM0_FREE_SPACE
+	call	WRAM_FREE_SPACE
 	nop
 
 	;write
 	ld		hl, write_sram_to_flash_rom
-	ld		de, WRAM0_FREE_SPACE
+	ld		de, WRAM_FREE_SPACE
 	ld		bc, write_sram_to_flash_rom_end - write_sram_to_flash_rom
 	call	copy_data
-	call	WRAM0_FREE_SPACE
+	call	WRAM_FREE_SPACE
 	nop
 
 	IF SRAM_SIZE_32KB
@@ -253,10 +265,10 @@ erase_and_write_ram_banks:
 		;8kb-16kb
 		;edit subroutine directly in RAM, changing some values
 		ld		a, HIGH($6000)
-		ld		[WRAM0_FREE_SPACE + (write_sram_to_flash_rom.set_destination_offset - write_sram_to_flash_rom) + 2], a ;destination ROM offset=$6000
+		ld		[WRAM_FREE_SPACE + (write_sram_to_flash_rom.set_destination_offset - write_sram_to_flash_rom) + 2], a ;destination ROM offset=$6000
 		ld		a, 1
-		ld		[WRAM0_FREE_SPACE + (write_sram_to_flash_rom.set_source_copy_bank - write_sram_to_flash_rom) + 1], a ;source SRAM bank=1
-		call	WRAM0_FREE_SPACE
+		ld		[WRAM_FREE_SPACE + (write_sram_to_flash_rom.set_source_copy_bank - write_sram_to_flash_rom) + 1], a ;source SRAM bank=1
+		call	WRAM_FREE_SPACE
 		nop
 		REPT 7 - 1
 			nop ;some dummy nops to guarantee correct flashing, might not be needed?
@@ -265,12 +277,12 @@ erase_and_write_ram_banks:
 		;16kb-24kb
 		;edit subroutine directly in RAM, changing some values
 		ld		a, BANK_FLASH_DATA + 1
-		ld		[WRAM0_FREE_SPACE + (write_sram_to_flash_rom.set_destination_bank - write_sram_to_flash_rom) + 1], a ;destination ROM bank=BANK_FLASH_DATA + 1
+		ld		[WRAM_FREE_SPACE + (write_sram_to_flash_rom.set_destination_bank - write_sram_to_flash_rom) + 1], a ;destination ROM bank=BANK_FLASH_DATA + 1
 		ld		a, HIGH($4000)
-		ld		[WRAM0_FREE_SPACE + (write_sram_to_flash_rom.set_destination_offset - write_sram_to_flash_rom) + 2], a ;destination ROM offset=$4000
+		ld		[WRAM_FREE_SPACE + (write_sram_to_flash_rom.set_destination_offset - write_sram_to_flash_rom) + 2], a ;destination ROM offset=$4000
 		ld		a, 2
-		ld		[WRAM0_FREE_SPACE + (write_sram_to_flash_rom.set_source_copy_bank - write_sram_to_flash_rom) + 1], a ;source SRAM bank=2
-		call	WRAM0_FREE_SPACE
+		ld		[WRAM_FREE_SPACE + (write_sram_to_flash_rom.set_source_copy_bank - write_sram_to_flash_rom) + 1], a ;source SRAM bank=2
+		call	WRAM_FREE_SPACE
 		nop
 		REPT 7 - 1
 			nop ;some dummy nops to guarantee correct flashing, might not be needed?
@@ -279,10 +291,10 @@ erase_and_write_ram_banks:
 		;24kb-32kb
 		;edit subroutine directly in RAM, changing some values
 		ld		a, HIGH($6000)
-		ld		[WRAM0_FREE_SPACE + (write_sram_to_flash_rom.set_destination_offset - write_sram_to_flash_rom) + 2], a ;destination ROM offset=$6000
+		ld		[WRAM_FREE_SPACE + (write_sram_to_flash_rom.set_destination_offset - write_sram_to_flash_rom) + 2], a ;destination ROM offset=$6000
 		ld		a, 3
-		ld		[WRAM0_FREE_SPACE + (write_sram_to_flash_rom.set_source_copy_bank - write_sram_to_flash_rom) + 1], a ;source SRAM bank=3
-		call	WRAM0_FREE_SPACE
+		ld		[WRAM_FREE_SPACE + (write_sram_to_flash_rom.set_source_copy_bank - write_sram_to_flash_rom) + 1], a ;source SRAM bank=3
+		call	WRAM_FREE_SPACE
 		nop
 	ENDC
 
@@ -409,6 +421,9 @@ write_sram_to_flash_rom:
 
 	ret
 write_sram_to_flash_rom_end:
+
+
+
 
 
 IF !DEF(EMBED_SAVEGAME)

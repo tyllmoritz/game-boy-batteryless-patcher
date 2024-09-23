@@ -59,7 +59,7 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; should be safe to use.
 ; In the worst scenario, use shadow OAM space. It will just glitch sprites for
 ; a single frame.
-DEF WRAM0_FREE_SPACE EQU $cf40
+DEF WRAM_FREE_SPACE EQU $cf40
 
 
 

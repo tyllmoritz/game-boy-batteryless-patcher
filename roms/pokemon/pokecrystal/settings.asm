@@ -77,8 +77,9 @@ DEF BANK0_FREE_SPACE EQU $70
 ; a single frame.
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
-DEF WRAM_FREE_SPACE EQU $c400 ;using Shadow OAM for now
-; DEF WRAM_BANK_NUMBER EQU $1
+; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
+DEF WRAM_FREE_SPACE EQU $d462 ;using Shadow OAM for now
+DEF WRAM_BANK_NUMBER EQU $5
 
 
 ; NEW CODE LOCATION

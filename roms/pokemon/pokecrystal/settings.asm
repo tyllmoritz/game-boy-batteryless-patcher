@@ -68,15 +68,17 @@ DEF BANK0_FREE_SPACE EQU $70
 ; RAM FREE SPACE
 ; --------------
 ; Bootleg's Flash ROM reading is locked when trying to write to it, so we need
-; to store and run our new subroutines in WRAM0 instead of ROM.
+; to store and run our new subroutines in WRAM instead of ROM.
 ; We need ~80 bytes (~0x50 bytes).
-; Check which WRAM0 sections are safe to write with a debugger.
+; Check which WRAM sections are safe to write with a debugger.
 ; If the game uses some compression or temporary section to store data, that
 ; should be safe to use.
 ; In the worst scenario, use shadow OAM space. It will just glitch sprites for
 ; a single frame.
-DEF WRAM0_FREE_SPACE EQU $c400 ;using Shadow OAM for now
-
+; If it's a color-only game, $d000-$dfff is banked.
+; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
+DEF WRAM_FREE_SPACE EQU $c400 ;using Shadow OAM for now
+; DEF WRAM_BANK_NUMBER EQU $1
 
 
 ; NEW CODE LOCATION

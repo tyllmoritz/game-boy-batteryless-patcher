@@ -113,6 +113,9 @@ call	save_sram_hook
 SECTION "Original call #3 to _SaveGameData", ROMX[$51B4], BANK[$05]
 ;call	$51dd ; _SaveGameData
 call	save_sram_hook
+SECTION "Original farcall #4 to _SaveGameData", ROMX[$6361], BANK[$21]
+;ld hl,	$51dd ; _SaveGameData
+ld hl, 	save_sram_hook
 
 SECTION "Save SRAM hook", ROM0[$00A0]
 save_sram_hook:

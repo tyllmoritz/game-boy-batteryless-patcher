@@ -1,17 +1,31 @@
-; RTC Patch for Pokemon Crystal
-; --------------------------
-; disassembled from:
-; https://www.infine.st/
-; https://www.romhacking.net/hacks/3841/
-; --------------------------
-; This patch allows the player to change the real-time clock while in the Pokegears clock menu.
-; Simply press up to advance and down to turn back the time.
-; Holding the A button allows you to change it faster.
-
-; Patch to "Pokemon - Crystal Version (USA, Europe).gbc"
-; MD5: 9f2922b235a5eeb78d65594e82ef5dde
-; SHA-1: f4cd194bdee0d04ca4eac29e09b8e4e9d818c133
-; SHA-256: d6702e353dcbe2d2c69183046c878ef13a0dae4006e8cdff521cca83dd1582fe
+; ------------------------------------------------------------------------------
+;                 Game Boy bootleg battery-less patching template
+;
+;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
+; ------------------------------------------------------------------------------
+; MIT License
+;
+; Copyright (c) 2024 Marc Robledo
+; Copyright (c) 2024 Robin Bertram
+;
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+;
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+;
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+; ------------------------------------------------------------------------------
 
 
 

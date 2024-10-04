@@ -1,17 +1,31 @@
-; RTC Patch for Pokemon Gold
-; --------------------------
-; disassembled from:
-; https://www.infine.st/
-; https://www.romhacking.net/hacks/4450/
-; --------------------------
-; This patch allows the player to change the real-time clock while in the Pokegears clock menu.
-; Simply press up to advance and down to turn back the time.
-; Holding the A button allows you to change it faster.
-
-; Patch to "Pokemon - Gold Version (USA, Europe) (SGB Enhanced).gbc"
-; MD5: a6924ce1f9ad2228e1c6580779b23878
-; SHA-1: d8b8a3600a465308c9953dfa04f0081c05bdcb94
-; SHA-256: fb0016d27b1e5374e1ec9fcad60e6628d8646103b5313ca683417f52b97e7e4e
+; ------------------------------------------------------------------------------
+;                 Game Boy bootleg battery-less patching template
+;
+;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
+; ------------------------------------------------------------------------------
+; MIT License
+;
+; Copyright (c) 2024 Marc Robledo
+; Copyright (c) 2024 Robin Bertram
+;
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+;
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+;
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+; ------------------------------------------------------------------------------
 
 DEF FarCall EQU $8
 

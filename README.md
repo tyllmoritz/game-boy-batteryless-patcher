@@ -43,9 +43,18 @@ Note: when saving, the game might freeze a few frames. This is normal, it's just
 
 
 
-
-
 Examples
 --------
 You can find `settings.asm` examples for some ROM hacks and translations in the `roms/` folder.<br/>
 Just create a new folder in `roms/*/` - if both a `settings.asm` and a `input.gbc`file are present, it will be build by `make`
+
+
+
+Licences
+--------
+```src/rtc.asm``` is licenced under the GPLv3 licence.<br>
+```src/hardware.inc``` is licenced under the CC0-1.0 licence.<br>
+```src/batteryless.asm```, ```src/main``` and all ```settings.asm``` files are licenced under the MIT licence.<br>
+That means, that this Project is a a whole is licenced under the GPLv3,<br>
+while individual source files are dual-licenced with their original licence and the GPLv3<br>
+Most source files should have licence headers.

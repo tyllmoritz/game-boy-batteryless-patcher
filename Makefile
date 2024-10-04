@@ -56,7 +56,7 @@ $(roms:.gbc=.bps): $$(patsubst %.bps,%.gbc,$$@)
 	flips --create --bps $(@D)/$(shell echo $(@D) | cut -d '/' -f 3).gbc $< $@
 
 $(roms): $$(patsubst %.gbc,%.o,$$@)
-	$(RGBLINK) $(RGBLINKFLAGS) -O $(@D)/$(shell echo $(@D) | cut -d '/' -f 3).gbc -o $@ $<
+	$(RGBLINK) $(RGBLINKFLAGS) -p0 -O $(@D)/$(shell echo $(@D) | cut -d '/' -f 3).gbc -o $@ $<
 	$(RGBFIX) -p0 -v $@
 
 define SAVEFILE_RGBASMFLAGS

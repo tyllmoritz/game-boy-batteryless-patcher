@@ -21,6 +21,21 @@ DEF BankX_FreeSpace_1 EQU $754e
 DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
 
 
+IF DEF(_NORTC)
+DEF hJoypadDown EQU $ffa6
+DEF wStartDay_ EQU $d1dc
+DEF wScriptFlags EQU $d15b
+DEF wSpriteAnimAddrBackup EQU $c5c0
+DEF wSpriteAnimAddrBackup_Value EQU $c5
+DEF wJumptableIndex EQU $ce63
+
+DEF UpdateTime_FixTime_ EQU $046d
+DEF FixTime_ EQU $04de
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4f0e
+DEF PokegearClock_Joypad_BANK EQU $24
+ENDC
+
+
 IF DEF(_BATTERYLESS)
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------

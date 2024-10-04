@@ -15,6 +15,18 @@ For now, it's only compatible with WR/AAA/A9 cart types and 64kb flashable secto
 Thanks to BennVennElectronic and Lesserkuma for their help!
 
 
+Additional RTC Patch
+--------------------
+
+disassembled from:<br>
+https://www.infine.st/<br>
+https://www.romhacking.net/hacks/4450/<br>
+
+Thank you infinest for the original patch.
+
+"This patch allows the player to change the real-time clock while in the Pokegears clock menu.<br>
+Simply press up to advance and down to turn back the time.<br>
+Holding the A button allows you to change it faster."
 
 
 How to

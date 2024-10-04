@@ -24,20 +24,32 @@ endif
 # targets = $(shell for dir in roms/*/*/settings.asm; do echo $$dir | cut -d "/" -f 3;done)
 targets = $(shell for dir in roms/*/*/settings.asm; do [ -e "$$(dirname $$dir)/$$(echo $$dir | cut -d '/' -f 3).gbc" ] && echo $$(dirname $$dir);done)
 
-roms_batteryless = $(foreach targetdir, ${targets}, \
-$(shell grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless.gbc"))
+define CODEBLOCK_ROMS
+roms_nortc += $(shell grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_nortc.gbc")
+roms_batteryless += $(shell grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless.gbc")
+roms_batteryless_nortc += $(shell { grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null ;} && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless_nortc.gbc")
+endef
+$(foreach targetdir, ${targets}, $(eval $(CODEBLOCK_ROMS)))
 
-roms = $(roms_batteryless)
+roms = $(roms_nortc) $(roms_batteryless) $(roms_batteryless_nortc)
 
 ifeq (,$(shell command -v flips))
-all: roms_batteryless
+all: roms_nortc roms_batteryless roms_batteryless_nortc
 else
-all: patches_batteryless
+all: patches_nortc patches_batteryless patches_batteryless_nortc
 endif
+
+patches_nortc: $(roms_nortc:.gbc=.bps)
+
+roms_nortc: $(roms_nortc)
 
 patches_batteryless: $(roms_batteryless:.gbc=.bps)
 
 roms_batteryless: $(roms_batteryless)
+
+patches_batteryless_nortc: $(roms_batteryless_nortc:.gbc=.bps)
+
+roms_batteryless_nortc: $(roms_batteryless_nortc)
 
 tools:
 	$(MAKE) -C tools/
@@ -49,7 +61,10 @@ RGBASMFLAGS = -E
 endif
 
 
+$(roms_nortc:.gbc=.o): RGBASMFLAGS += -D_NORTC
 $(roms_batteryless:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS
+$(roms_batteryless_nortc:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -D_NORTC
+
 
 
 $(roms:.gbc=.bps): $$(patsubst %.bps,%.gbc,$$@)
@@ -61,12 +76,12 @@ $(roms): $$(patsubst %.gbc,%.o,$$@)
 
 define SAVEFILE_RGBASMFLAGS
 ifneq ("$(wildcard $(savefile))","")
-$(savefile:.sav=.o):  RGBASMFLAGS += -DEMBED_SAVEGAME=\"$(subst _batteryless,,$(savefile))\"
+$(savefile:.sav=.o):  RGBASMFLAGS += -DEMBED_SAVEGAME=\"$(savefile)\"
 endif
 endef
-$(foreach savefile,$(roms_batteryless:.gbc=.sav), $(eval $(SAVEFILE_RGBASMFLAGS) ))
+$(foreach savefile,$(roms:.gbc=.sav), $(eval $(SAVEFILE_RGBASMFLAGS) ))
 
-$(roms:.gbc=.o): $$(@D)/settings.asm src/main.asm $$(shell tools/scan_includes $$(@D)/settings.asm) $$(shell tools/scan_includes src/main.asm 2>/dev/null) $$(wildcard $$(subst _batteryless.o,.sav,$$@))
+$(roms:.gbc=.o): $$(@D)/settings.asm src/main.asm $$(shell tools/scan_includes $$(@D)/settings.asm) $$(shell tools/scan_includes src/main.asm 2>/dev/null) $$(wildcard $$(subst .o,.sav,$$@))
 	$(RGBASM) $(RGBASMFLAGS) -o $@ --preinclude $< src/main.asm
 
 

@@ -20,6 +20,22 @@ DEF Bank0_FreeSpace_1 EQU $0069
 DEF BankX_FreeSpace_1 EQU $747b
 DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
 
+IF DEF(_NORTC)
+DEF FarCall EQU $8
+
+DEF hJoypadDown EQU $ffa4
+DEF wStartDay_ EQU $d4b6
+DEF wScriptFlags EQU $d434
+DEF wSpriteAnimAddrBackup EQU $c3b8
+DEF wSpriteAnimAddrBackup_Value EQU $c3
+DEF wJumptableIndex EQU $cf63
+
+DEF UpdateTime_FixTime_ EQU $05ad
+DEF FixTime_ EQU $061d
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4F45
+DEF PokegearClock_Joypad_BANK EQU $24
+ENDC
+
 
 IF DEF(_BATTERYLESS)
 

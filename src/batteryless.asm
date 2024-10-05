@@ -17,7 +17,8 @@ INCLUDE "src/bootleg_types.inc"
 ; Define your bootleg cartridge type.
 ; Valid values (see bootleg_types.inc):
 ; - WRAAAA9_64KB: WR/AAA/A9 cart type with 64kb (0x00010000) flashable sector size
-DEF BOOTLEG_CARTRIDGE_TYPE EQU WRAAAA9_64KB
+;DEF BOOTLEG_CARTRIDGE_TYPE EQU WRAAAA9_64KB
+;DEF BOOTLEG_CARTRIDGE_TYPE EQU WR555A9_64KB
 
 
 
@@ -313,6 +314,7 @@ erase_one_flash_erase_block:
 	ld		[$4000], a
 	nop
 
+	IF BOOTLEG_CARTRIDGE_TYPE == WRAAAA9_64KB
 	ld		a, $a9
 	ld		[$0aaa], a
 	nop
@@ -332,6 +334,27 @@ erase_one_flash_erase_block:
 	ld		a, $56
 	ld		[$0555], a
 	nop
+	ELIF BOOTLEG_CARTRIDGE_TYPE == WR555A9_64KB
+	ld		a, $a9
+	ld		[$0555], a
+	nop
+
+    ld		a, $56
+    ld		[$02aa], a
+	nop
+
+    ld		a, $80
+    ld		[$0555], a
+	nop
+
+    ld		a, $a9
+    ld		[$0555], a
+	nop
+
+    ld		a, $56
+    ld		[$02aa], a
+	nop
+	ENDC
 
 	ld		a, $30
 	ld		[$4000], a
@@ -391,6 +414,8 @@ write_sram_to_flash_rom:
 	ld		[rRAMB], a
 	nop
 
+
+	IF BOOTLEG_CARTRIDGE_TYPE == WRAAAA9_64KB
 	ld		a, $a9
 	ld		[$0aaa], a
 	nop
@@ -402,6 +427,19 @@ write_sram_to_flash_rom:
 	ld		a, $a0
 	ld		[$0aaa], a
 	nop
+	ELIF BOOTLEG_CARTRIDGE_TYPE == WR555A9_64KB
+	ld		a, $a9
+	ld		[$0555], a
+	nop
+
+	ld		a, $56
+	ld		[$02aa], a
+	nop
+
+	ld		a, $a0
+	ld		[$0555], a
+	nop
+	ENDC
 
 	ld		a, b
 	ld		[de], a

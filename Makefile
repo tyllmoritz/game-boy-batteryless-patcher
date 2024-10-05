@@ -12,12 +12,6 @@ RGBFIX  ?= $(RGBDS)rgbfix
 RGBGFX  ?= $(RGBDS)rgbgfx
 RGBLINK ?= $(RGBDS)rgblink
 
-# Build tools when building the rom.
-# This has to happen before the rules are processed, since that's when scan_includes is run.
-ifeq (,$(filter clean tools,$(MAKECMDGOALS)))
-$(info $(shell $(MAKE) -C tools))
-endif
-
 
 # get targets - every roms/* subdir with a input.gbc present
 # targets = $(patsubst %/, %, $(subst roms/, , $(dir $(wildcard roms/*/input.gbc))))
@@ -51,8 +45,6 @@ patches_batteryless_nortc: $(roms_batteryless_nortc:.gbc=.bps)
 
 roms_batteryless_nortc: $(roms_batteryless_nortc)
 
-tools:
-	$(MAKE) -C tools/
 
 # Create a sym/map for debug purposes if `make` run with `DEBUG=1`
 ifeq ($(DEBUG),1)
@@ -81,7 +73,7 @@ endif
 endef
 $(foreach savefile,$(roms:.gbc=.sav), $(eval $(SAVEFILE_RGBASMFLAGS) ))
 
-$(roms:.gbc=.o): $$(@D)/settings.asm src/main.asm $$(shell tools/scan_includes $$(@D)/settings.asm) $$(shell tools/scan_includes src/main.asm 2>/dev/null) $$(wildcard $$(subst .o,.sav,$$@))
+$(roms:.gbc=.o): $$(@D)/settings.asm src/main.asm $$(shell tools/scan_includes.sh $$(@D)/settings.asm src/main.asm) $$(wildcard $$(subst .o,.sav,$$@))
 	$(RGBASM) $(RGBASMFLAGS) -o $@ --preinclude $< src/main.asm
 
 
@@ -91,5 +83,4 @@ clean:
 	$(roms:.gbc=.sym) \
 	$(roms:.gbc=.map) \
 	$(roms:.gbc=.o)
-	$(MAKE) clean -C tools/
 

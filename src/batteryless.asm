@@ -140,9 +140,11 @@ save_sram_to_flash:
 
 	IF DEF(WRAM_BANK_NUMBER)
 		ldh a,[rSMBK] ; save RAM Bank# to stack
-		push af
+		ld b,a
 		ld a,WRAM_BANK_NUMBER
 		ldh [rSMBK],a ; load RAM Bank 1
+		ld a,b
+		push af
 	ENDC
 
 	ld		a, BANK(erase_and_write_ram_banks)

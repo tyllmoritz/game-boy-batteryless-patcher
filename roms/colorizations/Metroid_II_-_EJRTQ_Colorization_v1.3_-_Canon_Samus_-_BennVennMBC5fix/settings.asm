@@ -86,7 +86,7 @@ DEF BANK0_FREE_SPACE EQU $92
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
 DEF WRAM_FREE_SPACE EQU $dea0
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_BANK_NUMBER EQU $1
 
 IF DEF(_BATTERYLESS)
 

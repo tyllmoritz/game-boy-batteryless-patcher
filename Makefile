@@ -22,38 +22,26 @@ define CODEBLOCK_ROMS
 roms_nortc += $(shell grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_nortc.gbc")
 roms_batteryless-AAA-A9 += $(shell grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-AAA-A9.gbc")
 roms_batteryless-555-A9 += $(shell grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-555-A9.gbc")
+roms_batteryless-AAA-AA += $(shell grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-AAA-AA.gbc")
+roms_batteryless-555-AA += $(shell grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-555-AA.gbc")
 roms_batteryless-AAA-A9_nortc += $(shell { grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null ;} && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-AAA-A9_nortc.gbc")
 roms_batteryless-555-A9_nortc += $(shell { grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null ;} && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-555-A9_nortc.gbc")
+roms_batteryless-AAA-AA_nortc += $(shell { grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null ;} && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-AAA-AA_nortc.gbc")
+roms_batteryless-555-AA_nortc += $(shell { grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null ;} && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless-555-AA_nortc.gbc")
 endef
 $(foreach targetdir, ${targets}, $(eval $(CODEBLOCK_ROMS)))
 
-roms = $(roms_nortc) $(roms_batteryless-AAA-A9) $(roms_batteryless-AAA-A9_nortc) $(roms_batteryless-555-A9) $(roms_batteryless-555-A9_nortc)
+roms = $(roms_nortc) $(roms_batteryless-AAA-A9) $(roms_batteryless-AAA-A9_nortc) $(roms_batteryless-555-A9) $(roms_batteryless-555-A9_nortc) $(roms_batteryless-AAA-AA) $(roms_batteryless-AAA-AA_nortc) $(roms_batteryless-555-AA) $(roms_batteryless-555-AA_nortc)
 
 ifeq (,$(shell command -v flips))
-all: roms_nortc roms_batteryless-AAA-A9 roms_batteryless-555-A9 roms_batteryless-AAA-A9_nortc roms_batteryless-555-A9_nortc
+all: roms
 else
-all: patches_nortc patches_batteryless-AAA-A9 patches_batteryless-555-A9 patches_batteryless-AAA-A9_nortc patches_batteryless-555-A9_nortc
+all: patches
 endif
 
-patches_nortc: $(roms_nortc:.gbc=.bps)
+roms: $(roms)
 
-roms_nortc: $(roms_nortc)
-
-patches_batteryless-AAA-A9: $(roms_batteryless-AAA-A9:.gbc=.bps)
-
-roms_batteryless-AAA-A9: $(roms_batteryless-AAA-A9)
-
-patches_batteryless-AAA-A9_nortc: $(roms_batteryless-AAA-A9_nortc:.gbc=.bps)
-
-roms_batteryless-AAA-A9_nortc: $(roms_batteryless-AAA-A9_nortc)
-
-patches_batteryless-555-A9: $(roms_batteryless-555-A9:.gbc=.bps)
-
-roms_batteryless-555-A9: $(roms_batteryless-555-A9)
-
-patches_batteryless-555-A9_nortc: $(roms_batteryless-555-A9_nortc:.gbc=.bps)
-
-roms_batteryless-555-A9_nortc: $(roms_batteryless-555-A9_nortc)
+patches: $(roms:.gbc=.bps)
 
 
 # Create a sym/map for debug purposes if `make` run with `DEBUG=1`
@@ -68,6 +56,10 @@ $(roms_batteryless-AAA-A9:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CART
 $(roms_batteryless-AAA-A9_nortc:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CARTRIDGE_TYPE=1 -D_NORTC
 $(roms_batteryless-555-A9:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CARTRIDGE_TYPE=2
 $(roms_batteryless-555-A9_nortc:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CARTRIDGE_TYPE=2 -D_NORTC
+$(roms_batteryless-AAA-AA:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CARTRIDGE_TYPE=3
+$(roms_batteryless-AAA-AA_nortc:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CARTRIDGE_TYPE=3 -D_NORTC
+$(roms_batteryless-555-AA:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CARTRIDGE_TYPE=4
+$(roms_batteryless-555-AA_nortc:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -DBOOTLEG_CARTRIDGE_TYPE=4 -D_NORTC
 
 
 

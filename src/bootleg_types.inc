@@ -11,3 +11,9 @@ DEF WRAAAA9_64KB EQU 1
 
 ; - WR555A9_64KB: WR/555/A9 cart type with 64kb (0x00010000) flashable sector size
 DEF WR555A9_64KB EQU 2
+
+; - WRAAAAA_64KB: WR/AAA/AA cart type with 64kb (0x00010000) flashable sector size
+DEF WRAAAAA_64KB EQU 3
+
+; - WR555AA_64KB: WR/555/AA cart type with 64kb (0x00010000) flashable sector size
+DEF WR555AA_64KB EQU 4

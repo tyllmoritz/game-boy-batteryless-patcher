@@ -19,6 +19,8 @@ INCLUDE "src/bootleg_types.inc"
 ; - WRAAAA9_64KB: WR/AAA/A9 cart type with 64kb (0x00010000) flashable sector size
 ;DEF BOOTLEG_CARTRIDGE_TYPE EQU WRAAAA9_64KB
 ;DEF BOOTLEG_CARTRIDGE_TYPE EQU WR555A9_64KB
+;DEF BOOTLEG_CARTRIDGE_TYPE EQU WRAAAAA_64KB
+;DEF BOOTLEG_CARTRIDGE_TYPE EQU WR555AA_64KB
 
 
 
@@ -118,10 +120,10 @@ save_sram_to_flash:
 	push	hl
 
 	IF DEF(WRAM_BANK_NUMBER)
-		ldh a,[rSMBK] ; save RAM Bank# to stack
+		ldh a,[rSMBK]
 		ld b,a
 		ld a,WRAM_BANK_NUMBER
-		ldh [rSMBK],a ; load RAM Bank 1
+		ldh [rSMBK],a
 		ld a,b
 		push af
 	ENDC
@@ -356,6 +358,46 @@ erase_one_flash_erase_block:
     ld		a, $56
     ld		[$02aa], a
 	nop
+	ELIF BOOTLEG_CARTRIDGE_TYPE == WRAAAAA_64KB
+	ld		a, $aa
+	ld		[$0aaa], a
+	nop
+
+	ld		a, $55
+	ld		[$0555], a
+	nop
+
+	ld		a, $80
+	ld		[$0aaa], a
+	nop
+
+	ld		a, $aa
+	ld		[$0aaa], a
+	nop
+
+	ld		a, $55
+	ld		[$0555], a
+	nop
+	ELIF BOOTLEG_CARTRIDGE_TYPE == WR555AA_64KB
+	ld		a, $aa
+	ld		[$0555], a
+	nop
+
+    ld		a, $55
+    ld		[$02aa], a
+	nop
+
+    ld		a, $80
+    ld		[$0555], a
+	nop
+
+    ld		a, $aa
+    ld		[$0555], a
+	nop
+
+    ld		a, $55
+    ld		[$02aa], a
+	nop
 	ENDC
 
 	ld		a, $30
@@ -435,6 +477,30 @@ write_sram_to_flash_rom:
 	nop
 
 	ld		a, $56
+	ld		[$02aa], a
+	nop
+
+	ld		a, $a0
+	ld		[$0555], a
+	nop
+	ELIF BOOTLEG_CARTRIDGE_TYPE == WRAAAAA_64KB
+	ld		a, $aa
+	ld		[$0aaa], a
+	nop
+
+	ld		a, $55
+	ld		[$0555], a
+	nop
+
+	ld		a, $a0
+	ld		[$0aaa], a
+	nop
+	ELIF BOOTLEG_CARTRIDGE_TYPE == WR555AA_64KB
+	ld		a, $aa
+	ld		[$0555], a
+	nop
+
+	ld		a, $55
 	ld		[$02aa], a
 	nop
 

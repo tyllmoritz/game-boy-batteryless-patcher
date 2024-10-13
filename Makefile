@@ -73,11 +73,17 @@ $(roms): $$(patsubst %.gbc,%.o,$$@)
 define SAVEFILE_RGBASMFLAGS
 ifneq ("$(wildcard $(savefile))","")
 $(savefile:.sav=.o):  RGBASMFLAGS += -DEMBED_SAVEGAME=\"$(savefile)\"
+$(savefile:_debug.sav=.o):  RGBASMFLAGS += -DEMBED_SAVEGAME=\"$(savefile)\"
 endif
 endef
+ifeq ($(DEBUG),1)
+$(foreach savefile,$(roms:.gbc=_debug.sav), $(eval $(SAVEFILE_RGBASMFLAGS) ))
+endif
+ifneq ($(RELEASE),1)
 $(foreach savefile,$(roms:.gbc=.sav), $(eval $(SAVEFILE_RGBASMFLAGS) ))
+endif
 
-$(roms:.gbc=.o): $$(@D)/settings.asm src/main.asm $$(shell tools/scan_includes.sh $$(@D)/settings.asm src/main.asm) $$(wildcard $$(subst .o,.sav,$$@))
+$(roms:.gbc=.o): $$(@D)/settings.asm src/main.asm $$(shell tools/scan_includes.sh $$(@D)/settings.asm src/main.asm) $$(wildcard $$(subst .o,.sav,$$@)) $$(wildcard $$(subst .o,_debug.sav,$$@))
 	$(RGBASM) $(RGBASMFLAGS) -o $@ --preinclude $< src/main.asm
 
 

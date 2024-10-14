@@ -92,8 +92,8 @@ DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $7f
-DEF BATTERYLESS_CODE_OFFSET EQU $7eb0
+DEF BATTERYLESS_CODE_BANK EQU $80
+DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
 
@@ -113,7 +113,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $80
+DEF BANK_FLASH_DATA EQU $84
 
 
 

@@ -1,12 +1,16 @@
 ; ------------------------------------------------------------------------------
-;                 Game Boy bootleg battery-less patching template
-;                          by Marc Robledo 2024
-;
-;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
+;  get CrystalClear_2_5_10_ColorFilter_1_1.bps from https://discord.gg/tskaCr2
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - CrystalClear (2.5.10) (ColorFilter).gbc"
+; SHA1 1a3de02fd0dbad5db0c8151851ecc3c4b96735b1
+;
+; builds "batteryless/Pokemon - CrystalClear (2.5.10) (ColorFilter) (batteryless).gbc" with _BATTERYLESS
+;
 ; ------------------------------------------------------------------------------
 
 

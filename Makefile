@@ -1,84 +1,70 @@
-# Makefile specific
+.SUFFIXES:
 .PHONY: clean all
 .SECONDEXPANSION:
 
-ifneq ($(wildcard rgbds/.*),)
-RGBDS = rgbds/
-endif
 
-RGBDS ?=
-RGBASM  ?= $(RGBDS)rgbasm
-RGBFIX  ?= $(RGBDS)rgbfix
-RGBGFX  ?= $(RGBDS)rgbgfx
-RGBLINK ?= $(RGBDS)rgblink
+RGBDS   ?=
+RGBASM  := ${RGBDS}rgbasm
+RGBLINK := ${RGBDS}rgblink
+RGBFIX  := ${RGBDS}rgbfix
+RGBGFX  := ${RGBDS}rgbgfx
 
+# find character that is not used in files
+separator = $(shell printf '%b' "\u$$(printf '%x' "$$(( 0x$$(printf '%x' "'$$((echo '}'; find * -type f) | grep -o . | LC_ALL=C sort -u | tail -n 1 | tr -d "\n")") + 1))")")
+# define space, tab and newline variables
+blank :=
+space := $(blank) $(blank)
 
-# get targets - every roms/* subdir with a input.gbc present
-# targets = $(patsubst %/, %, $(subst roms/, , $(dir $(wildcard roms/*/input.gbc))))
-# targets = $(shell for dir in roms/*/*/settings.asm; do echo $$dir | cut -d "/" -f 3;done)
-targets = $(shell for dir in roms/*/*/settings.asm; do [ -e "$$(dirname $$dir)/$$(echo $$dir | cut -d '/' -f 3).gbc" ] && echo $$(dirname $$dir);done)
+# define functions for string manipulation
+replace_space = $(subst $(space),$(separator),$1)
+reinsert_space = $(subst $(separator),$(space),$1)
+reinsert_space_escaped = $(subst $(separator),\$(space),$1)
+dir = $(call reinsert_space ,$(dir $(call replace_space,$1)))
 
-define CODEBLOCK_ROMS
-roms_nortc += $(shell grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_nortc.gbc")
-roms_batteryless += $(shell grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless.gbc")
-roms_batteryless_nortc += $(shell { grep -o "^IF DEF(_NORTC)" ${targetdir}/settings.asm >/dev/null && grep -o "^IF DEF(_BATTERYLESS)" ${targetdir}/settings.asm >/dev/null ;} && echo "${targetdir}/$(shell echo ${targetdir} | cut -d '/' -f 3 )_batteryless_nortc.gbc")
+# get all configfiles with "; ROM" and "; SHA1" lines configured to files that exist and have a matching checksum
+#  loop over null-terminated output of find, check sha1sum with bsd or gnu tool, echo filename if checksum matches
+configfiles = $(shell while IFS='' read -r -d $$'\0' file <&3; do $$(command -v sha1sum || command -v shasum) -c <(echo "$$(sed -n 's/^; SHA1 \(.*\)$$/\1/p' "$$file")  original-roms/$$(sed -n 's/^; ROM \"\(.*\)\"$$/\1/p' "$$file")") &>/dev/null && echo "$$file" | sed 's/ /$(separator)/g'; done 3< <(find * -type f -name "*.asm" -print0) )
+
+# for each configfile set variables roms, %_baserom, %_configfile and RGBASMFLAGS
+define get_config_info
+baserom = $(shell echo "original-roms/$$(sed -n 's/^; ROM \"\(.*\)\"$$/\1/p' "$(call reinsert_space,${configfile})")" | sed 's/ /${separator}/g')
+${configfile}_roms = $(shell sed -n 's/^; builds \"\(.*\)\" with \(.*\)$$/\1/p' "$(call reinsert_space,${configfile})" | sed 's/ /${separator}/g')
 endef
-$(foreach targetdir, ${targets}, $(eval $(CODEBLOCK_ROMS)))
-
-roms = $(roms_nortc) $(roms_batteryless) $(roms_batteryless_nortc)
-
-ifeq (,$(shell command -v flips))
-all: roms
-else
-all: patches
-endif
-
-roms: $(roms)
-
-patches: $(roms:.gbc=.bps)
-
-
-# Create a sym/map for debug purposes if `make` run with `DEBUG=1`
-ifeq ($(DEBUG),1)
-RGBLINKFLAGS += -n $(@:.gbc=.sym) -m $(@:.gbc=.map)
-RGBASMFLAGS = -E
-endif
-
-
-$(roms_nortc:.gbc=.o): RGBASMFLAGS += -D_NORTC
-$(roms_batteryless:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS
-$(roms_batteryless_nortc:.gbc=.o): RGBASMFLAGS += -D_BATTERYLESS -D_NORTC
-
-
-
-$(roms:.gbc=.bps): $$(patsubst %.bps,%.gbc,$$@)
-	flips --create --bps $(@D)/$(shell echo $(@D) | cut -d '/' -f 3).gbc $< $@
-
-$(roms): $$(patsubst %.gbc,%.o,$$@)
-	$(RGBLINK) $(RGBLINKFLAGS) -p0 -O $(@D)/$(shell echo $(@D) | cut -d '/' -f 3).gbc -o $@ $<
-	$(RGBFIX) -p0 -v $@
-
-define SAVEFILE_RGBASMFLAGS
-ifneq ("$(wildcard $(savefile))","")
-$(savefile:.sav=.o):  RGBASMFLAGS += -DEMBED_SAVEGAME=\"$(savefile)\"
-$(savefile:_debug.sav=.o):  RGBASMFLAGS += -DEMBED_SAVEGAME=\"$(savefile)\"
-endif
+define set_rom_vars
+	roms += $(targetrom)
+	patched-roms/${targetrom}_baserom := $(baserom)
+	patched-roms/${targetrom}_configfile := ${configfile}
+	$(foreach configopt, $(shell grep '; builds "$(call reinsert_space,${targetrom})" with ' "$(call reinsert_space,${configfile})" | sed -n 's/.*with \(.*\)$$/\1/p'), \
+	    $(eval patched-roms/$(call reinsert_space_escaped,${targetrom}): RGBASMFLAGS += -D$(configopt)) \
+	    $(eval build/$(call reinsert_space_escaped,${targetrom:=.mk}): RGBASMFLAGS += -D$(configopt)) \
+	)
 endef
-ifeq ($(DEBUG),1)
-$(foreach savefile,$(roms:.gbc=_debug.sav), $(eval $(SAVEFILE_RGBASMFLAGS) ))
-endif
-ifneq ($(RELEASE),1)
-$(foreach savefile,$(roms:.gbc=.sav), $(eval $(SAVEFILE_RGBASMFLAGS) ))
-endif
+$(foreach configfile,${configfiles},$(eval $(get_config_info)) $(foreach targetrom,$(${configfile}_roms), $(eval $(set_rom_vars))))
 
-$(roms:.gbc=.o): $$(@D)/settings.asm src/main.asm $$(shell tools/scan_includes.sh $$(@D)/settings.asm src/main.asm) $$(wildcard $$(subst .o,.sav,$$@)) $$(wildcard $$(subst .o,_debug.sav,$$@))
-	$(RGBASM) $(RGBASMFLAGS) -o $@ --preinclude $< src/main.asm
+all: $(call reinsert_space_escaped,$(addprefix patched-roms/,$(roms)))
 
+patches: $(call reinsert_space_escaped,$(addprefix patches/,$(roms:=.bps)))
+
+patches/%.bps: patched-roms/%
+	$(shell mkdir -p $(call dir, $@))
+	flips --create --bps '$(call reinsert_space ,$($(call replace_space,$(<))_baserom))' '$<' '$@'
+
+patched-roms/%: build/%.o
+	$(shell mkdir -p $(call dir, $@))
+	$(RGBLINK) $(RGBLINKFLAGS) -p0 -O '$(call reinsert_space ,$($(call replace_space,$(@))_baserom))' -o '$@' '$<' \
+	&& $(RGBFIX) -p0 -v '$@'
+
+build/%.o: build/%.mk
+	touch '$@'
+
+# TODO: fix double-space
+build/%.mk: $$(call reinsert_space_escaped,$$($$(call replace_space,$$(subst build,patched-roms,$$(subst .mk,,$$@)))_configfile))
+	$(shell mkdir -p $(call dir, $@))
+	$(RGBASM) ${RGBASMFLAGS} -M - -MG -MP -MQ '$(call reinsert_space,$(@:.mk=.o))' -o 'build/$*.o' --preinclude '$(call reinsert_space,$(<))' src/main.asm | sed 's/\([^\:]\) /\1\\ /g' > '$(call reinsert_space,$(@))'
+
+ifeq ($(filter clean,${MAKECMDGOALS}),)
+include $(call reinsert_space_escaped,$(addprefix build/,$(roms:=.mk)))
+endif
 
 clean:
-	$(RM) $(roms) \
-	$(roms:.gbc=.bps) \
-	$(roms:.gbc=.sym) \
-	$(roms:.gbc=.map) \
-	$(roms:.gbc=.o)
-
+	$(RM) -r patched-roms build patches

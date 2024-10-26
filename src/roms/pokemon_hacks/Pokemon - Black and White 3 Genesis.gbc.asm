@@ -1,12 +1,18 @@
 ; ------------------------------------------------------------------------------
-;             Battery-less patch for Pokemon Crystal Ultimate v1.0.7
-;        (find hack here: https://www.pokecommunity.com/threads/441959/)
-;
-;                     put settings.asm in src/ and assemble
+;                            Pokemon BW3: Genesis
+;        find hack here: https://www.pokecommunity.com/threads/444114/
+;        github: https://github.com/AzureKeys/BW3G/releases/tag/v1.2
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Black and White 3 Genesis.gbc"
+; SHA1 d55e4cdb84cac430b0faad08c3e4886b8566fbb2
+;
+; builds "batteryless/Pokemon - Black and White 3 Genesis (batteryless).gbc" with _BATTERYLESS
+;
 ; ------------------------------------------------------------------------------
 
 
@@ -75,8 +81,8 @@ IF DEF(_BATTERYLESS)
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $7f
-DEF BATTERYLESS_CODE_OFFSET EQU $7b00
+DEF BATTERYLESS_CODE_BANK EQU $80
+DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
 
@@ -96,7 +102,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $80
+DEF BANK_FLASH_DATA EQU $84
 
 
 
@@ -111,14 +117,14 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$4acd], BANK[5]
-;call	$4af6
+SECTION "Original save SRAM subroutine end", ROMX[$4b53], BANK[5]
+;call	$4b7c
 call	save_sram_hook
 
 SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
 save_sram_hook:
 	;original code
-	call	$4af6
+	call	$4b7c
 	
 	;new code
 	jp	save_sram_to_flash

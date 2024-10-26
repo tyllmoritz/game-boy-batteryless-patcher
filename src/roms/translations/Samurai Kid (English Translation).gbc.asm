@@ -6,6 +6,13 @@
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
+;
+; ROM "Samurai Kid (English Translation).gbc"
+; SHA1 e03a3a6aedb9051e83a731eeef19536b1d15113a
+;
+; builds "batteryless/Samurai Kid (English Translation) (batteryless).gbc" with _BATTERYLESS
+;
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE

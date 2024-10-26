@@ -7,17 +7,38 @@
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Silver Version (USA, Europe) (SGB Enhanced) (GB Compatible).gbc"
+; SHA1 49b163f7e57702bc939d642a18f591de55d92dae
+;
+; builds "Pokemon - Silver Version (USA, Europe) (SGB Enhanced) (GB Compatible) (nortc).gbc" with _NORTC
+; builds "batteryless/Pokemon - Silver Version (USA, Europe) (SGB Enhanced) (GB Compatible) (nortc) (batteryless).gbc" with _BATTERYLESS _NORTC
+;
+; ------------------------------------------------------------------------------
 
+DEF FarCall EQU $8
 
-
-DEF Bank0_FreeSpace_0 EQU $0063
-DEF Bank0_FreeSpace_1 EQU $0069
-DEF BankX_FreeSpace_1 EQU $74a0
+DEF Bank0_FreeSpace_0 EQU $0051
+DEF Bank0_FreeSpace_1 EQU $0063
+DEF BankX_FreeSpace_1 EQU $754e
 DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
+
+IF DEF(_NORTC)
+DEF hJoypadDown EQU $ffa6
+DEF wStartDay_ EQU $d1dc
+DEF wScriptFlags EQU $d15b
+DEF wSpriteAnimAddrBackup EQU $c5c0
+DEF wSpriteAnimAddrBackup_Value EQU $c5
+DEF wJumptableIndex EQU $ce63
+
+DEF UpdateTime_FixTime_ EQU $046d
+DEF FixTime_ EQU $04de
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4f0e
+DEF PokegearClock_Joypad_BANK EQU $24
+ENDC
 
 
 IF DEF(_BATTERYLESS)
-
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
 ; Usually, it's safe to keep the same original game's ROM type and size, since
@@ -41,7 +62,7 @@ DEF SRAM_SIZE_32KB EQU 1
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $016e
+DEF GAME_BOOT_OFFSET EQU $05c6
 
 
 
@@ -73,7 +94,7 @@ DEF BANK0_FREE_SPACE EQU $70
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c400 ;using Shadow OAM for now
+DEF WRAM_FREE_SPACE EQU $c300 ;using Shadow OAM for now
 ; DEF WRAM_BANK_NUMBER EQU $1
 
 
@@ -83,7 +104,7 @@ DEF WRAM_FREE_SPACE EQU $c400 ;using Shadow OAM for now
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
 DEF BATTERYLESS_CODE_BANK EQU $1
-DEF BATTERYLESS_CODE_OFFSET EQU $7550
+DEF BATTERYLESS_CODE_OFFSET EQU $7640
 
 
 
@@ -93,7 +114,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $7550
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9f
 
 
 
@@ -118,20 +139,19 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original call #1 to _SaveGameData", ROMX[$4b85], BANK[$05]
-;call	$4c10 ; _SaveGameData
+SECTION "Original call #1 to _SaveGameData", ROMX[$4c23], BANK[$05]
+;call	$4ccc ; _SaveGameData
 call	save_sram_hook
-SECTION "Original call #2 to _SaveGameData", ROMX[$4be6], BANK[$05]
-;call	$4c10 ; _SaveGameData
+SECTION "Original call #2 to _SaveGameData", ROMX[$4ca2], BANK[$05]
+;call	$4ccc ; _SaveGameData
 call	save_sram_hook
 
 SECTION "Save SRAM hook", ROM0[$00F0]
 save_sram_hook:
 	;original code
-	call	$4c10 ; _SaveGameData
+	call	$4ccc ; _SaveGameData
 	;new code
 	call	save_sram_to_flash
 	ret
 
 ENDC
-

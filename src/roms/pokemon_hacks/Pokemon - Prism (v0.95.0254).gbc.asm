@@ -6,6 +6,13 @@
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Prism (v0.95.0254).gbc"
+; SHA1 752076692ae3387cf426ce5f51a98c6b60e8df6a
+;
+; builds "batteryless/Pokemon - Prism (v0.95.0254) (batteryless).gbc" with _BATTERYLESS
+;
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE

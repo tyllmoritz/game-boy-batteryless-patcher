@@ -1,7 +1,6 @@
 ; ------------------------------------------------------------------------------
-;                 Game Boy bootleg battery-less patching template
-;
-;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
+;         Battery-less patch for Super Robot Pinball (english translation)
+;      (find translation here: https://www.romhacking.net/translations/6402/)
 ; ------------------------------------------------------------------------------
 ; MIT License
 ;
@@ -26,30 +25,15 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; ------------------------------------------------------------------------------
-
-DEF FarCall EQU $8
-
-DEF Bank0_FreeSpace_0 EQU $0051
-DEF Bank0_FreeSpace_1 EQU $0063
-DEF BankX_FreeSpace_1 EQU $754e
-DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
-
-IF DEF(_NORTC)
-DEF hJoypadDown EQU $ffa6
-DEF wStartDay_ EQU $d1dc
-DEF wScriptFlags EQU $d15b
-DEF wSpriteAnimAddrBackup EQU $c5c0
-DEF wSpriteAnimAddrBackup_Value EQU $c5
-DEF wJumptableIndex EQU $ce63
-
-DEF UpdateTime_FixTime_ EQU $046d
-DEF FixTime_ EQU $04de
-DEF PokegearClock_Joypad_buttoncheck_ EQU $4f0e
-DEF PokegearClock_Joypad_BANK EQU $24
-ENDC
+;
+; ROM "Super Robot Pinball (English Translation).gbc"
+; SHA1 0e712d025bd481df40038f5c1d4bc8cb4a0ec20f
+;
+; builds "batteryless/Super Robot Pinball (English Translation) (batteryless).gbc" with _BATTERYLESS
+;
+; ------------------------------------------------------------------------------
 
 
-IF DEF(_BATTERYLESS)
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
 ; Usually, it's safe to keep the same original game's ROM type and size, since
@@ -65,7 +49,7 @@ IF DEF(_BATTERYLESS)
 ; SRAM ORIGINAL SIZE
 ; ------------------
 ; Set to 1 if game's original SRAM is 32kb
-DEF SRAM_SIZE_32KB EQU 1
+DEF SRAM_SIZE_32KB EQU 0
 
 
 
@@ -73,7 +57,7 @@ DEF SRAM_SIZE_32KB EQU 1
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $05c6
+DEF GAME_BOOT_OFFSET EQU $0150
 
 
 
@@ -88,7 +72,7 @@ DEF GAME_BOOT_OFFSET EQU $05c6
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $70
+DEF BANK0_FREE_SPACE EQU $3fc0
 
 
 
@@ -105,17 +89,17 @@ DEF BANK0_FREE_SPACE EQU $70
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c300 ;using Shadow OAM for now
+DEF WRAM_FREE_SPACE EQU $cf40
 ; DEF WRAM_BANK_NUMBER EQU $1
 
-
+IF DEF(_BATTERYLESS)
 
 ; NEW CODE LOCATION
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $1
-DEF BATTERYLESS_CODE_OFFSET EQU $7640
+DEF BATTERYLESS_CODE_BANK EQU $7e
+DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
 
@@ -125,7 +109,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $7640
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9f
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $fff8
 
 
 
@@ -150,17 +134,16 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original call #1 to _SaveGameData", ROMX[$4c23], BANK[$05]
-;call	$4ccc ; _SaveGameData
+SECTION "Original save SRAM subroutine end", ROM0[$0a9e]
+;call	$0a46
 call	save_sram_hook
-SECTION "Original call #2 to _SaveGameData", ROMX[$4ca2], BANK[$05]
-;call	$4ccc ; _SaveGameData
-call	save_sram_hook
+ret
 
-SECTION "Save SRAM hook", ROM0[$00F0]
+SECTION "Save SRAM hook", ROM0[$3fb8]
 save_sram_hook:
 	;original code
-	call	$4ccc ; _SaveGameData
+	call	$0a46
+	
 	;new code
 	call	save_sram_to_flash
 	ret

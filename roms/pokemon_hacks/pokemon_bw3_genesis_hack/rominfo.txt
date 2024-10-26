@@ -1,3 +1,0 @@
-get original ROM from https://github.com/AzureKeys/BW3G/releases/tag/v1.2 or patch crystal 1.0 with the patch from here:
-https://www.pokecommunity.com/threads/pokemon-black-and-white-3-genesis-complete.444114/
-

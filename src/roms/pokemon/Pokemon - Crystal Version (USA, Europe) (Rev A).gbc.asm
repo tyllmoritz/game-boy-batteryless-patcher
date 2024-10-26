@@ -1,6 +1,7 @@
 ; ------------------------------------------------------------------------------
-;                Battery-less patch for Pokemon Prism (v0.95.0254)
-;             (find hack here: https://rainbowdevs.com/title/prism/)
+;                 Game Boy bootleg battery-less patching template
+;
+;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
 ; ------------------------------------------------------------------------------
 ; MIT License
 ;
@@ -25,7 +26,38 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Crystal Version (USA, Europe) (Rev A).gbc"
+; SHA1 f2f52230b536214ef7c9924f483392993e226cfb
+;
+; builds "Pokemon - Crystal Version (USA, Europe) (Rev A) (nortc).gbc" with _NORTC
+; builds "batteryless/Pokemon - Crystal Version (USA, Europe) (Rev A) (nortc) (batteryless).gbc" with _BATTERYLESS _NORTC
+;
+; ------------------------------------------------------------------------------
 
+DEF Bank0_FreeSpace_0 EQU $0063
+DEF Bank0_FreeSpace_1 EQU $0069
+DEF BankX_FreeSpace_1 EQU $747b
+DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
+
+IF DEF(_NORTC)
+DEF FarCall EQU $8
+
+DEF hJoypadDown EQU $ffa4
+DEF wStartDay_ EQU $d4b6
+DEF wScriptFlags EQU $d434
+DEF wSpriteAnimAddrBackup EQU $c3b8
+DEF wSpriteAnimAddrBackup_Value EQU $c3
+DEF wJumptableIndex EQU $cf63
+
+DEF UpdateTime_FixTime_ EQU $05ad
+DEF FixTime_ EQU $061d
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4F45
+DEF PokegearClock_Joypad_BANK EQU $24
+ENDC
+
+
+IF DEF(_BATTERYLESS)
 
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
@@ -44,33 +76,13 @@
 ; Set to 1 if game's original SRAM is 32kb
 DEF SRAM_SIZE_32KB EQU 1
 
-IF DEF(_BATTERYLESS)
+
 
 ; GAME BOOT OFFSET
 ; ----------------
-; we are not defining GAME_BOOT_OFFSET, we are coding our custom hook for the
-; entry point, since this hack does not use the common nop+jp entry point
-SECTION "ROM - Entry point", ROM0[$0100]
-; original code
-; ldh		[$ffe6], a
-; jr		$016c
-nop
-jp		boot_hook
-
-SECTION "ROM - Custom entry point", ROM0[$3fa0]
-boot_hook:
-	;this will be run during boot, will copy savegame from Flash ROM to SRAM
-	push	af
-	ld		a, BANK(copy_save_flash_to_sram)
-	ld		[rROMB0], a
-	call	copy_save_flash_to_sram
-	ld		a, 1
-	ld		[rROMB0], a
-	pop		af
-
-	;original entry point code
-	ldh		[$ffe6], a	
-	jp		$016c
+; Put here the game's boot jp offset found in in 0:0101.
+; Usually $0150, but could be different depending on game.
+DEF GAME_BOOT_OFFSET EQU $016e
 
 
 
@@ -85,7 +97,7 @@ boot_hook:
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $70
 
 
 
@@ -102,8 +114,8 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_FREE_SPACE EQU $d462 ;using Shadow OAM for now
+DEF WRAM_BANK_NUMBER EQU $5
 
 
 
@@ -111,8 +123,8 @@ DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $80
-DEF BATTERYLESS_CODE_OFFSET EQU $4000
+DEF BATTERYLESS_CODE_BANK EQU $1
+DEF BATTERYLESS_CODE_OFFSET EQU $7550
 
 
 
@@ -132,8 +144,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $84
-
+DEF BANK_FLASH_DATA EQU $80
 
 
 ; EMBED CUSTOM SAVEGAME
@@ -147,16 +158,20 @@ DEF BANK_FLASH_DATA EQU $84
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$4d71], BANK[5]
-;call	$4df3
+SECTION "Original call #1 to _SaveGameData", ROMX[$4b85], BANK[$05]
+;call	$4c10 ; _SaveGameData
+call	save_sram_hook
+SECTION "Original call #2 to _SaveGameData", ROMX[$4be6], BANK[$05]
+;call	$4c10 ; _SaveGameData
 call	save_sram_hook
 
-SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
+SECTION "Save SRAM hook", ROM0[$00F0]
 save_sram_hook:
 	;original code
-	call	$4df3
-	
+	call	$4c10 ; _SaveGameData
 	;new code
-	jp	save_sram_to_flash
+	call	save_sram_to_flash
+	ret
 
 ENDC
+

@@ -26,8 +26,39 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Gold Version (USA, Europe) (SGB Enhanced) (GB Compatible).gbc"
+; SHA1 d8b8a3600a465308c9953dfa04f0081c05bdcb94
+;
+; builds "Pokemon - Gold Version (USA, Europe) (SGB Enhanced) (GB Compatible) (nortc).gbc" with _NORTC
+; builds "batteryless/Pokemon - Gold Version (USA, Europe) (SGB Enhanced) (GB Compatible) (nortc) (batteryless).gbc" with _BATTERYLESS _NORTC
+;
+; ------------------------------------------------------------------------------
+
+DEF FarCall EQU $8
+
+DEF Bank0_FreeSpace_0 EQU $0051
+DEF Bank0_FreeSpace_1 EQU $0063
+DEF BankX_FreeSpace_1 EQU $754e
+DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
 
 
+IF DEF(_NORTC)
+DEF hJoypadDown EQU $ffa6
+DEF wStartDay_ EQU $d1dc
+DEF wScriptFlags EQU $d15b
+DEF wSpriteAnimAddrBackup EQU $c5c0
+DEF wSpriteAnimAddrBackup_Value EQU $c5
+DEF wJumptableIndex EQU $ce63
+
+DEF UpdateTime_FixTime_ EQU $046d
+DEF FixTime_ EQU $04de
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4f0e
+DEF PokegearClock_Joypad_BANK EQU $24
+ENDC
+
+
+IF DEF(_BATTERYLESS)
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
 ; Usually, it's safe to keep the same original game's ROM type and size, since
@@ -43,7 +74,7 @@
 ; SRAM ORIGINAL SIZE
 ; ------------------
 ; Set to 1 if game's original SRAM is 32kb
-DEF SRAM_SIZE_32KB EQU 0
+DEF SRAM_SIZE_32KB EQU 1
 
 
 
@@ -51,7 +82,7 @@ DEF SRAM_SIZE_32KB EQU 0
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $0150
+DEF GAME_BOOT_OFFSET EQU $05c6
 
 
 
@@ -66,21 +97,25 @@ DEF GAME_BOOT_OFFSET EQU $0150
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $70
 
 
 
 ; RAM FREE SPACE
 ; --------------
 ; Bootleg's Flash ROM reading is locked when trying to write to it, so we need
-; to store and run our new subroutines in WRAM0 instead of ROM.
+; to store and run our new subroutines in WRAM instead of ROM.
 ; We need ~80 bytes (~0x50 bytes).
-; Check which WRAM0 sections are safe to write with a debugger.
+; Check which WRAM sections are safe to write with a debugger.
 ; If the game uses some compression or temporary section to store data, that
 ; should be safe to use.
 ; In the worst scenario, use shadow OAM space. It will just glitch sprites for
 ; a single frame.
-DEF WRAM_FREE_SPACE EQU $cf40
+; If it's a color-only game, $d000-$dfff is banked.
+; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
+; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
+DEF WRAM_FREE_SPACE EQU $c300 ;using Shadow OAM for now
+; DEF WRAM_BANK_NUMBER EQU $1
 
 
 
@@ -88,8 +123,8 @@ DEF WRAM_FREE_SPACE EQU $cf40
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $7e
-DEF BATTERYLESS_CODE_OFFSET EQU $4000
+DEF BATTERYLESS_CODE_BANK EQU $1
+DEF BATTERYLESS_CODE_OFFSET EQU $7640
 
 
 
@@ -99,7 +134,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $fff8
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9f
 
 
 
@@ -115,9 +150,8 @@ DEF BANK_FLASH_DATA EQU $80
 
 ; EMBED CUSTOM SAVEGAME
 ; ---------------------
-; Set to 1 if you want to embed your own savegame to the Flash ROM.
-; Place the savegame file as embed_savegame.sav in src directory.
-DEF EMBED_SAVEGAME EQU 0
+; Just place a sav file next to the input ROM - with the extension .sav instead of .gbc
+; If a sav file is present, it will be included into the batteryless ROM.
 
 
 
@@ -125,16 +159,19 @@ DEF EMBED_SAVEGAME EQU 0
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROM0[$0a9e]
-;call	$0a46
+SECTION "Original call #1 to _SaveGameData", ROMX[$4c23], BANK[$05]
+;call	$4ccc ; _SaveGameData
 call	save_sram_hook
-ret
+SECTION "Original call #2 to _SaveGameData", ROMX[$4ca2], BANK[$05]
+;call	$4ccc ; _SaveGameData
+call	save_sram_hook
 
-SECTION "Save SRAM hook", ROM0[$3fb8]
+SECTION "Save SRAM hook", ROM0[$00F0]
 save_sram_hook:
 	;original code
-	call	$0a46
-	
+	call	$4ccc ; _SaveGameData
 	;new code
 	call	save_sram_to_flash
 	ret
+
+ENDC

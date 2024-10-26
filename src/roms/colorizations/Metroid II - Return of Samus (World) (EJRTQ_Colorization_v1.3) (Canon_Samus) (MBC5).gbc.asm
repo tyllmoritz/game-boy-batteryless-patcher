@@ -1,9 +1,9 @@
 ; ------------------------------------------------------------------------------
-;                            Pokemon Polished Crystal
-;    get  polishedcrystal-nortc-3.0.0-beta-22d6f8e1.gbc from
-;    https://github.com/Rangi42/polishedcrystal/releases/tag/v3.0.0-beta
-;
-;    More info at https://github.com/Rangi42/polishedcrystal
+;            Battery-less patch for Metroid II
+;               with EJRTQ Colorization 1.3
+;                with Canon Samus Patch
+;                   with MBC5 Patch
+; https://discord.com/channels/761864233855615017/770754678702080012/959565947881009192
 ; ------------------------------------------------------------------------------
 ; MIT License
 ;
@@ -28,6 +28,13 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; ------------------------------------------------------------------------------
+;
+; ROM "Metroid II - Return of Samus (World) (EJRTQ_Colorization_v1.3) (Canon_Samus) (MBC5).gbc"
+; SHA1 d4ccdebdc79619d59fe48f7451e8df71ca7b62b2
+;
+; builds "batteryless/Metroid II - Return of Samus (World) (EJRTQ_Colorization_v1.3) (Canon_Samus) (MBC5) (batteryless).gbc" with _BATTERYLESS
+;
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE
@@ -37,15 +44,15 @@
 ; savegame.
 ; Uncomment the following constants if you want to manually specify cartridge
 ; type and/or size:
-; DEF CHANGE_CART_TYPE EQU CART_ROM_MBC5_RAM_BAT
-; DEF CHANGE_CART_SIZE EQU CART_ROM_2048KB ;128 banks
+; DEF CHANGE_CART_TYPE EQU $1b
+; DEF CHANGE_CART_SIZE EQU CART_ROM_1024KB ;64 banks
 
 
 
 ; SRAM ORIGINAL SIZE
 ; ------------------
 ; Set to 1 if game's original SRAM is 32kb
-DEF SRAM_SIZE_32KB EQU 1
+DEF SRAM_SIZE_32KB EQU 0
 
 
 
@@ -53,7 +60,7 @@ DEF SRAM_SIZE_32KB EQU 1
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $0177
+DEF GAME_BOOT_OFFSET EQU $0150
 
 
 
@@ -68,7 +75,7 @@ DEF GAME_BOOT_OFFSET EQU $0177
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3d35
+DEF BANK0_FREE_SPACE EQU $92
 
 
 
@@ -85,8 +92,8 @@ DEF BANK0_FREE_SPACE EQU $3d35
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $d562
-DEF WRAM_BANK_NUMBER EQU $5
+DEF WRAM_FREE_SPACE EQU $dea0
+DEF WRAM_BANK_NUMBER EQU $1
 
 IF DEF(_BATTERYLESS)
 
@@ -94,7 +101,7 @@ IF DEF(_BATTERYLESS)
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $71
+DEF BATTERYLESS_CODE_BANK EQU $11
 DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
@@ -105,7 +112,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff93
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $d04e
 
 
 
@@ -115,7 +122,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff93
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $74
+DEF BANK_FLASH_DATA EQU $16
 
 
 
@@ -130,16 +137,23 @@ DEF BANK_FLASH_DATA EQU $74
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "save_hook: overwrite code at the end of SaveCurrentVersion", ROMX[$4cc5], BANK[$05]
-	; jp CloseSRAM; $2a60
-    jp save_sram_hook
+SECTION "Original save SRAM subroutine end", ROMX[$7b82], BANK[$1]
+; ld a,$4
+; ldh [$ff9B],a
+; ret
+call	save_sram_hook
+ret
+nop
 
-SECTION "Save SRAM hook", ROM0[$3ff9]
+SECTION "Save SRAM hook", ROM0[$34]
 save_sram_hook:
-    ;original code
-    call $2a60
-    ;new code
-    call save_sram_to_flash
-    ret
-ENDC
+	;original code
+    ld a,$4
+    ldh [$ff9B],a
+	
+	;new code
+	call	save_sram_to_flash
 
+	ret
+
+ENDC

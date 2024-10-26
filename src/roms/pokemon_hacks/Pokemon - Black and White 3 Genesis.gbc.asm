@@ -1,6 +1,7 @@
 ; ------------------------------------------------------------------------------
-;         Battery-less patch for Super Robot Pinball (english translation)
-;      (find translation here: https://www.romhacking.net/translations/6402/)
+;                            Pokemon BW3: Genesis
+;        find hack here: https://www.pokecommunity.com/threads/444114/
+;        github: https://github.com/AzureKeys/BW3G/releases/tag/v1.2
 ; ------------------------------------------------------------------------------
 ; MIT License
 ;
@@ -25,6 +26,14 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Black and White 3 Genesis.gbc"
+; SHA1 d55e4cdb84cac430b0faad08c3e4886b8566fbb2
+;
+; builds "batteryless/Pokemon - Black and White 3 Genesis (batteryless).gbc" with _BATTERYLESS
+;
+; ------------------------------------------------------------------------------
+
 
 
 ; CARTRIDGE TYPE AND ROM SIZE
@@ -42,7 +51,7 @@
 ; SRAM ORIGINAL SIZE
 ; ------------------
 ; Set to 1 if game's original SRAM is 32kb
-DEF SRAM_SIZE_32KB EQU 0
+DEF SRAM_SIZE_32KB EQU 1
 
 
 
@@ -50,7 +59,7 @@ DEF SRAM_SIZE_32KB EQU 0
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $0150
+DEF GAME_BOOT_OFFSET EQU $016e
 
 
 
@@ -82,7 +91,7 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $cf40
+DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
 ; DEF WRAM_BANK_NUMBER EQU $1
 
 IF DEF(_BATTERYLESS)
@@ -91,7 +100,7 @@ IF DEF(_BATTERYLESS)
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $7e
+DEF BATTERYLESS_CODE_BANK EQU $80
 DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
@@ -102,7 +111,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $fff8
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 
 
 
@@ -112,7 +121,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $fff8
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $80
+DEF BANK_FLASH_DATA EQU $84
 
 
 
@@ -127,18 +136,16 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROM0[$0a9e]
-;call	$0a46
+SECTION "Original save SRAM subroutine end", ROMX[$4b53], BANK[5]
+;call	$4b7c
 call	save_sram_hook
-ret
 
-SECTION "Save SRAM hook", ROM0[$3fb8]
+SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
 save_sram_hook:
 	;original code
-	call	$0a46
+	call	$4b7c
 	
 	;new code
-	call	save_sram_to_flash
-	ret
+	jp	save_sram_to_flash
 
 ENDC

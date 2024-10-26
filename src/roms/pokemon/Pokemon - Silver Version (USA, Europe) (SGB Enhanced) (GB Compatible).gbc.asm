@@ -1,6 +1,7 @@
 ; ------------------------------------------------------------------------------
-;            Battery-less patch for Samurai Kid (english translation)
-;      (find translation here: https://www.romhacking.net/translations/6297/)
+;                 Game Boy bootleg battery-less patching template
+;
+;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
 ; ------------------------------------------------------------------------------
 ; MIT License
 ;
@@ -25,8 +26,38 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Silver Version (USA, Europe) (SGB Enhanced) (GB Compatible).gbc"
+; SHA1 49b163f7e57702bc939d642a18f591de55d92dae
+;
+; builds "Pokemon - Silver Version (USA, Europe) (SGB Enhanced) (GB Compatible) (nortc).gbc" with _NORTC
+; builds "batteryless/Pokemon - Silver Version (USA, Europe) (SGB Enhanced) (GB Compatible) (nortc) (batteryless).gbc" with _BATTERYLESS _NORTC
+;
+; ------------------------------------------------------------------------------
+
+DEF FarCall EQU $8
+
+DEF Bank0_FreeSpace_0 EQU $0051
+DEF Bank0_FreeSpace_1 EQU $0063
+DEF BankX_FreeSpace_1 EQU $754e
+DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
+
+IF DEF(_NORTC)
+DEF hJoypadDown EQU $ffa6
+DEF wStartDay_ EQU $d1dc
+DEF wScriptFlags EQU $d15b
+DEF wSpriteAnimAddrBackup EQU $c5c0
+DEF wSpriteAnimAddrBackup_Value EQU $c5
+DEF wJumptableIndex EQU $ce63
+
+DEF UpdateTime_FixTime_ EQU $046d
+DEF FixTime_ EQU $04de
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4f0e
+DEF PokegearClock_Joypad_BANK EQU $24
+ENDC
 
 
+IF DEF(_BATTERYLESS)
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
 ; Usually, it's safe to keep the same original game's ROM type and size, since
@@ -35,14 +66,14 @@
 ; Uncomment the following constants if you want to manually specify cartridge
 ; type and/or size:
 ; DEF CHANGE_CART_TYPE EQU CART_ROM_MBC5_RAM_BAT
-; DEF CHANGE_CART_SIZE EQU CART_ROM_1024KB ;64 banks
+; DEF CHANGE_CART_SIZE EQU CART_ROM_2048KB ;128 banks
 
 
 
 ; SRAM ORIGINAL SIZE
 ; ------------------
 ; Set to 1 if game's original SRAM is 32kb
-DEF SRAM_SIZE_32KB EQU 0
+DEF SRAM_SIZE_32KB EQU 1
 
 
 
@@ -50,7 +81,7 @@ DEF SRAM_SIZE_32KB EQU 0
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $0150
+DEF GAME_BOOT_OFFSET EQU $05c6
 
 
 
@@ -65,7 +96,7 @@ DEF GAME_BOOT_OFFSET EQU $0150
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $70
 
 
 
@@ -82,17 +113,17 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c800
+DEF WRAM_FREE_SPACE EQU $c300 ;using Shadow OAM for now
 ; DEF WRAM_BANK_NUMBER EQU $1
 
-IF DEF(_BATTERYLESS)
+
 
 ; NEW CODE LOCATION
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $3f
-DEF BATTERYLESS_CODE_OFFSET EQU $4000
+DEF BATTERYLESS_CODE_BANK EQU $1
+DEF BATTERYLESS_CODE_OFFSET EQU $7640
 
 
 
@@ -102,7 +133,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffaa
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9f
 
 
 
@@ -112,7 +143,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffaa
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $40
+DEF BANK_FLASH_DATA EQU $80
 
 
 
@@ -127,22 +158,19 @@ DEF BANK_FLASH_DATA EQU $40
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROM0[$322a]
-;ld		[$0000], a
+SECTION "Original call #1 to _SaveGameData", ROMX[$4c23], BANK[$05]
+;call	$4ccc ; _SaveGameData
 call	save_sram_hook
-ret
+SECTION "Original call #2 to _SaveGameData", ROMX[$4ca2], BANK[$05]
+;call	$4ccc ; _SaveGameData
+call	save_sram_hook
 
-SECTION "Save SRAM hook", ROM0[$3f80]
+SECTION "Save SRAM hook", ROM0[$00F0]
 save_sram_hook:
 	;original code
-	ld		[$0000], a
-	
+	call	$4ccc ; _SaveGameData
 	;new code
 	call	save_sram_to_flash
-
-	;original code, again, just in case
-	xor		a
-	ld		[$0000], a
 	ret
 
 ENDC

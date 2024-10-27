@@ -1,18 +1,18 @@
 ; ------------------------------------------------------------------------------
-;             Battery-less patch for Pokemon Crystal Ultimate v1.0.7
-;        (find hack here: https://www.pokecommunity.com/threads/441959/)
-;
-;                     put settings.asm in src/ and assemble
+;           Battery-less patch for Pokemon Crystal Ultimate v1.0.7.5
+;                           https://discord.gg/XMYBvDA
+;      https://discord.com/channels/430843040308133889/743307521225261117
+;    (find old version here: https://www.pokecommunity.com/threads/441959/)
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
 ;
-; ROM "Pokemon - Crystal Ultimate (v1.0.7).gbc"
-; SHA1 4576186318797da5bf55090013bae5a7863fda88
+; ROM "Pokemon - Crystal Ultimate (v1.0.7.5).gbc"
+; SHA1 929e752f347ac79e8dbac35980f784b9a661a168
 ;
-; builds "batteryless/Pokemon - Crystal Ultimate (v1.0.7) (batteryless).gbc" with _BATTERYLESS
+; builds "batteryless/Pokemon - Crystal Ultimate (v1.0.7.5) (batteryless).gbc" with _BATTERYLESS
 ;
 ; ------------------------------------------------------------------------------
 
@@ -56,7 +56,7 @@ DEF GAME_BOOT_OFFSET EQU $016e
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $3fb8
 
 
 
@@ -73,8 +73,8 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_FREE_SPACE EQU $dd00
+DEF WRAM_BANK_NUMBER EQU $5
 
 IF DEF(_BATTERYLESS)
 
@@ -118,14 +118,14 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$4acd], BANK[5]
-;call	$4af6
+SECTION "Original save SRAM subroutine end", ROMX[$4b1a], BANK[5]
+;call	$2e66
 call	save_sram_hook
 
 SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
 save_sram_hook:
 	;original code
-	call	$4af6
+	call	$2e66 ;CloseSRAM
 	
 	;new code
 	jp	save_sram_to_flash

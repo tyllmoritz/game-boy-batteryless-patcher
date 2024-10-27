@@ -228,6 +228,9 @@ copy_save_flash_to_sram:
 		ld		a, BANK_FLASH_DATA + 1 ;set source ROM bank
 		call	bank_switch_and_copy_from_flash_to_sram
 	ENDC
+
+	ld		a, CART_SRAM_DISABLE
+	ld		[rRAMG], a ;disable SRAM
 	
 	ret
 

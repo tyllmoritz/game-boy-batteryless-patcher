@@ -55,7 +55,7 @@ DEF GAME_BOOT_OFFSET EQU $016e
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $63
 
 
 
@@ -72,8 +72,8 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_FREE_SPACE EQU $dd00
+DEF WRAM_BANK_NUMBER EQU $5
 
 IF DEF(_BATTERYLESS)
 

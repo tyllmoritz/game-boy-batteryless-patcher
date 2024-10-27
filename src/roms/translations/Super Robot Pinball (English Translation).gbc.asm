@@ -72,7 +72,7 @@ DEF GAME_BOOT_OFFSET EQU $0150
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $3fb8
 
 
 
@@ -89,8 +89,8 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $cf40
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_FREE_SPACE EQU $d400
+DEF WRAM_BANK_NUMBER EQU $2
 
 IF DEF(_BATTERYLESS)
 
@@ -127,7 +127,7 @@ DEF BANK_FLASH_DATA EQU $80
 ; ---------------------
 ; Just place a sav file next to the input ROM - with the extension .sav instead of .gbc
 ; If a sav file is present, it will be included into the batteryless ROM.
-
+; DEF EMBED_SAVEGAME EQUS "\"src/roms/translations/Super Robot Pinball (English Translation).gbc.sav\""
 
 
 ; ORIGINAL SAVE SUBROUTINE
@@ -139,7 +139,7 @@ SECTION "Original save SRAM subroutine end", ROM0[$0a9e]
 call	save_sram_hook
 ret
 
-SECTION "Save SRAM hook", ROM0[$3fb8]
+SECTION "Save SRAM hook", ROM0[$00cc]
 save_sram_hook:
 	;original code
 	call	$0a46

@@ -2,6 +2,7 @@
 .PHONY: clean all
 .SECONDEXPANSION:
 
+SHELL := $(shell command -v bash)
 
 RGBDS   ?=
 RGBASM  := ${RGBDS}rgbasm

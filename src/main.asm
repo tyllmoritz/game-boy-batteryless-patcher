@@ -10,3 +10,7 @@ ENDC
 IF DEF(_BATTERYLESS)
 INCLUDE "src/batteryless.asm"
 ENDC
+
+SECTION "header checksums", ROM0[$014d]
+    DB $00, $00, $00
+ENDSECTION

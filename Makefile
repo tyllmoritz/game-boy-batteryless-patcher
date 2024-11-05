@@ -2,7 +2,7 @@
 .PHONY: clean all
 .SECONDEXPANSION:
 
-SHELL := $(shell command -v bash)
+SHELL := $(shell which bash)
 
 RGBDS   ?=
 RGBASM  := ${RGBDS}rgbasm
@@ -20,6 +20,7 @@ space := $(blank) $(blank)
 replace_space = $(subst $(space),$(separator),$1)
 reinsert_space = $(subst $(separator),$(space),$1)
 reinsert_space_escaped = $(subst $(separator),\$(space),$1)
+escape_space = $(subst $(space),\$(space),$1)
 dir = $(call reinsert_space ,$(dir $(call replace_space,$1)))
 
 # get all configfiles with "; ROM" and "; SHA1" lines configured to files that exist and have a matching checksum
@@ -34,7 +35,7 @@ endef
 define set_rom_vars
 	roms += $(targetrom)
 	patched-roms/${targetrom}_baserom := $(baserom)
-	patched-roms/${targetrom}_configfile := ${configfile}
+	${targetrom}_configfile := ${configfile}
 	$(foreach configopt, $(shell grep '; builds "$(call reinsert_space,${targetrom})" with ' "$(call reinsert_space,${configfile})" | sed -n 's/.*with \(.*\)$$/\1/p'), \
 	    $(eval patched-roms/$(call reinsert_space_escaped,${targetrom}): RGBASMFLAGS += -D$(configopt)) \
 	    $(eval build/$(call reinsert_space_escaped,${targetrom:=.mk}): RGBASMFLAGS += -D$(configopt)) \
@@ -46,26 +47,28 @@ all: $(call reinsert_space_escaped,$(addprefix patched-roms/,$(roms)))
 
 patches: $(call reinsert_space_escaped,$(addprefix patches/,$(roms:=.bps)))
 
-patches/%.bps: patched-roms/%
+patches/%.bps: patched-roms/$$(call escape_space,%)
 	$(shell mkdir -p $(call dir, $@))
 	flips --create --bps '$(call reinsert_space ,$($(call replace_space,$(<))_baserom))' '$<' '$@'
 
-patched-roms/%: build/%.o
+patched-roms/%: build/$$(call escape_space,%).o
 	$(shell mkdir -p $(call dir, $@))
 	$(RGBLINK) $(RGBLINKFLAGS) -p0 -O '$(call reinsert_space ,$($(call replace_space,$(@))_baserom))' -o '$@' '$<' \
 	&& $(RGBFIX) -p0 -v '$@'
 
-build/%.o: build/%.mk
-	touch '$@'
+build/%.o: build/$$(call escape_space,%).mk
+	touch -c '$@'
+	if [ ! -s '$@' ]; then rm '$<' && make '$<'; fi
 
-# TODO: fix double-space
-build/%.mk: $$(call reinsert_space_escaped,$$($$(call replace_space,$$(subst build,patched-roms,$$(subst .mk,,$$@)))_configfile))
+build/%.mk: $$(call reinsert_space_escaped,$$($$(call replace_space,%)_configfile))
 	$(shell mkdir -p $(call dir, $@))
-	$(RGBASM) ${RGBASMFLAGS} -M - -MG -MP -MQ '$(call reinsert_space,$(@:.mk=.o))' -o 'build/$*.o' --preinclude '$(call reinsert_space,$(<))' src/main.asm | sed 's/\([^\:]\) /\1\\ /g' > '$(call reinsert_space,$(@))'
+	$(RGBASM) ${RGBASMFLAGS} -M - -MG -MQ '$(call reinsert_space_escaped,$(@))' -MQ '$(call reinsert_space_escaped,$(@:.mk=.o))' -o 'build/$*.o' --preinclude '$(<)' src/main.asm | sed 's/ /\\ /g; s/\([\\:]\)\\ /\1 /g; s/\\ build\// build\//' > '$(@)'
 
 ifeq ($(filter clean,${MAKECMDGOALS}),)
 include $(call reinsert_space_escaped,$(addprefix build/,$(roms:=.mk)))
 endif
 
 clean:
-	$(RM) -r patched-roms build patches
+	$(RM) $(call reinsert_space,$(addsuffix ',$(addprefix 'patched-roms/,$(roms)) \
+	                                          $(addprefix 'build/,$(roms:=.o)) \
+	                                          $(addprefix 'build/,$(roms:=.mk))))

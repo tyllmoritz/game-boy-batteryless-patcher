@@ -57,4 +57,4 @@ Licences
 ```src/batteryless.asm```, ```src/main``` and all ```settings.asm``` files are licenced under the MIT licence.<br>
 That means, that this Project is a a whole is licenced under the GPLv3,<br>
 while individual source files are dual-licenced with their original licence and the GPLv3<br>
-Most source files should have licence headers.
+Most source files should have SPDX licence headers.

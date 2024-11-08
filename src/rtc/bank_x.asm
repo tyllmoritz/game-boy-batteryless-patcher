@@ -9,43 +9,6 @@
 ; ------------------------------------------------------------------------------
 
 
-MACRO farcall ; bank, address
-	ld a, BANK(\1)
-	ld hl, \1
-	rst FarCall
-ENDM
-
-
-DEF A_BUTTON   EQU 1 << 0
-DEF B_BUTTON   EQU 1 << 1
-DEF SELECT     EQU 1 << 2
-DEF START      EQU 1 << 3
-DEF D_RIGHT    EQU 1 << 4
-DEF D_LEFT     EQU 1 << 5
-DEF D_UP       EQU 1 << 6
-DEF D_DOWN     EQU 1 << 7
-
-
-SECTION "WRAM - Time", WRAMX[wStartDay_], BANK[$1]
-; init time set at newgame
-wStartDay::    db
-wStartHour::   db
-wStartMinute:: db
-wStartSecond:: db
-
-SECTION "ROM - Bank 0 free space #0", ROM0[Bank0_FreeSpace_0]
-FixAndUpdateTime:
-call FixTime                 ; orig unmodified function
-jp UpdateTime.afterFixTime   ; in UpdateTime (after our modified call to FixTime - run farcall GetTimeOfDay, then ret)
-
-
-SECTION "ROM - Bank 0 free space #1", ROM0[Bank0_FreeSpace_1]
-ChangeTimeInPokegear::
-ld a, BANK(_ChangeTimeInPokegear)
-ld hl, _ChangeTimeInPokegear
-rst 8
-ret
-
 
 SECTION "ROM - Bank X free space #1", ROMX[BankX_FreeSpace_1], BANK[BankX_FreeSpace_1_BANKNUMBER]
 
@@ -155,39 +118,6 @@ ld [wStartDay],a
 ret
 
 
-
-SECTION "UpdateTime: change jump", ROM0[UpdateTime_FixTime_]
-;UpdateTime::
-;   call GetClock
-;   call FixDays
-UpdateTime.fixTime:
-;   call FixTime            ; <- orig code - is overwritten
-    jp ChangeTimeInPokegear ; <- new  code
-UpdateTime.afterFixTime:
-;   farcall GetTimeOfDay
-;   ret
-
-
-SECTION "FixTime", ROM0[FixTime_]
-FixTime:
-    ;orig code unmodified - only for Label
-
-SECTION "PokegearClock_Joypad: overwrite exit Buttons", ROMX[PokegearClock_Joypad_buttoncheck_], BANK[PokegearClock_Joypad_BANK]
-
-;PokegearClock_Joypad:
-;   call .UpdateClock
-;   ld hl, hJoyLast
-;   ld a, [hl]
-PokegearClock_Joypad.buttoncheck:
-;   and A_BUTTON | B_BUTTON | START | SELECT    ; <- orig code - is overwritten
-    and B_BUTTON | START | SELECT               ; <- new  code
-;   jr nz, .quit
-;   ld a, [hl]
-;   and D_RIGHT
-;   ret z
-;   ld a, [wPokegearFlags]
-;   bit POKEGEAR_MAP_CARD_F, a
-;   jr z, .no_map_card
-;   ld c, POKEGEARSTATE_MAPCHECKREGION
-;   ld b, POKEGEARCARD_MAP
-;   jr .done
+FixAndUpdateTime:
+call FixTime                 ; orig unmodified function
+jp UpdateTime.afterFixTime   ; in UpdateTime (after our modified call to FixTime - run farcall GetTimeOfDay, then ret)

@@ -5,11 +5,17 @@
 ; ------------------------------------------------------------------------------
 
 
+; Define your bootleg cartridge type.
+; Valid values:
+; - WRAAAAA_64KB: WR/AAA/AA cart type with 64kb (0x00010000) flashable sector size
+; - WRAAAA9_64KB: WR/AAA/A9 cart type with 64kb (0x00010000) flashable sector size
+; - WR555AA_64KB: WR/555/AA cart type with 64kb (0x00010000) flashable sector size
+; - WR555A9_64KB: WR/555/A9 cart type with 64kb (0x00010000) flashable sector size
+
+
 DEF BOOTLEG_TRUE   EQU 1 << 0
 DEF BOOTLEG_A9     EQU 1 << 1
 DEF BOOTLEG_555    EQU 1 << 2
-
-; known bootleg cartridge types:
 
 ; - WRAAAAA_64KB: WR/AAA/AA cart type with 64kb (0x00010000) flashable sector size
 DEF WRAAAAA_64KB EQU                            BOOTLEG_TRUE ; 001 $1

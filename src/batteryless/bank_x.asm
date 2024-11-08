@@ -9,184 +9,6 @@
 ; ------------------------------------------------------------------------------
 
 
-INCLUDE "src/hardware.inc" ;https://github.com/gbdev/hardware.inc
-INCLUDE "src/bootleg_types.inc"
-
-
-; -------- BOOTLEG CARTRIDGE TYPE --------
-; Define your bootleg cartridge type.
-; Valid values (see bootleg_types.inc):
-; - WRAAAA9_64KB: WR/AAA/A9 cart type with 64kb (0x00010000) flashable sector size
-;DEF BOOTLEG_CARTRIDGE_TYPE EQU WRAAAA9_64KB
-;DEF BOOTLEG_CARTRIDGE_TYPE EQU WR555A9_64KB
-;DEF BOOTLEG_CARTRIDGE_TYPE EQU WRAAAAA_64KB
-;DEF BOOTLEG_CARTRIDGE_TYPE EQU WR555AA_64KB
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-; ---------------- HEADER ----------------
-; modify game header if needed
-IF DEF(CHANGE_CART_TYPE)
-	SECTION "Cart type", ROM0[$0147]
-	DB CHANGE_CART_TYPE
-ENDC
-IF DEF(CHANGE_CART_SIZE)
-	SECTION "Cart size", ROM0[$0148]
-	DB CHANGE_CART_SIZE
-ENDC
-
-
-
-; --------------- RAM/HRAM ---------------
-; define section and label for game's current bank byte
-IF GAME_ENGINE_CURRENT_BANK_OFFSET >= _HRAM
-	SECTION "HRAM - original game's bank switch backup", HRAM[GAME_ENGINE_CURRENT_BANK_OFFSET]
-ELIF GAME_ENGINE_CURRENT_BANK_OFFSET >= _RAMBANK
-	SECTION "WRAMX - original game's bank switch backup", WRAMX[GAME_ENGINE_CURRENT_BANK_OFFSET], BANK[1]
-ELIF GAME_ENGINE_CURRENT_BANK_OFFSET >= _RAM
-	SECTION "WRAM0 - original game's bank switch backup", WRAM0[GAME_ENGINE_CURRENT_BANK_OFFSET]
-ELSE
-	SECTION "SRAM - original game's bank switch backup", SRAM[GAME_ENGINE_CURRENT_BANK_OFFSET], BANK[0]
-ENDC
-
-_current_game_bank:
-	DB
-
-
-
-; ----------------- ROM -----------------
-; hook game's boot and execute our boot_hook subroutine beforehand
-IF DEF(GAME_BOOT_OFFSET)
-	SECTION "ROM - Entry point", ROM0[$0100]
-	nop
-	;jp		boot_original
-	jp		boot_hook
-
-	SECTION "ROM - Original game boot", ROM0[GAME_BOOT_OFFSET]
-	boot_original:
-ENDC
-
-SECTION "ROM - Bank 0 free space", ROM0[BANK0_FREE_SPACE]
-IF DEF(GAME_BOOT_OFFSET)
-	boot_hook:
-		;this will be run during boot, will copy savegame from Flash ROM to SRAM
-		push	af
-		ld		a, BANK(copy_save_flash_to_sram)
-		ld		[rROMB0], a
-		call	copy_save_flash_to_sram
-		ld		a, 1
-		ld		[rROMB0], a
-		pop		af
-		jp		boot_original
-ENDC
-
-
-save_sram_to_flash:
-	; IF DEF(DISABLE_HW_WHEN_SAVING)
-	; 	;disable screen, timer and speaker
-	; 	ldh		a, [rIE]
-	; 	push	af
-	; 	ldh		a, [rIF]
-	; 	push	af
-	; 	ldh		a, [rTAC]
-	; 	push	af
-	; 	ldh		a, [rSTAT]
-	; 	push	af
-	; 	ldh		a, [rNR50]
-	; 	push	af
-	; 	halt 
-	; 	xor  a
-	; 	ld   [rIE], a
-	; 	ld   [rIF], a
-	; 	ld   [rTAC], a
-	; 	ld   [rSTAT], a
-	; 	ld   [rNR50], a
-	; ENDC
-
-	;this will be run when the game saves, will copy savegame from SRAM to Flash ROM
-	di
-	push	af
-	push	bc
-	push	de
-	push	hl
-
-	IF DEF(WRAM_BANK_NUMBER)
-		ldh a,[rSMBK]
-		ld b,a
-		ld a,WRAM_BANK_NUMBER
-		ldh [rSMBK],a
-		ld a,b
-		push af
-	ENDC
-
-	ld		a, BANK(erase_and_write_ram_banks)
-	ld		[rROMB0], a
-	call	erase_and_write_ram_banks
-	IF GAME_ENGINE_CURRENT_BANK_OFFSET >= _HRAM
-		ldh		a, [_current_game_bank]
-	ELSE
-		ld		a, [_current_game_bank]
-	ENDC
-	ld		[rROMB0], a
-
-	IF DEF(WRAM_BANK_NUMBER)
-		pop af
-		ldh [rSMBK],a ; set to previous wram bank
-	ENDC
-
-	pop		hl
-	pop		de
-	pop		bc
-	pop		af
-
-
-	; IF DEF(DISABLE_HW_WHEN_SAVING)
-	; 	;reenable screen, timer and speaker
-	; 	pop		af
-	; 	ldh		[rNR50], a
-	; 	pop		af
-	; 	ldh		[rSTAT], a
-	; 	pop		af
-	; 	ldh		[rTAC], a
-	; 	pop		af
-	; 	ldh		[rIF], a
-	; 	pop		af
-	; 	ldh		[rIE], a
-	; ENDC
-
-	reti
-
-bank_switch_and_copy_from_flash_to_sram:
-	;this subroutine is called by copy_save_flash_to_sram
-	;we store it in bank 0 to make bank switching easier while copying from Flash ROM to SRAM
-	ld		[rROMB0], a
-.loop:
-	ld		a, [hli]
-	ld		[de], a
-	inc		de
-	dec		bc
-	ld		a, c
-	or		b
-	jr		nz, .loop
-	ld		a, BANK(copy_save_flash_to_sram)
-	ld		[rROMB0], a
-	ret
-
-
-
-
-SECTION "ROM - Free space", ROMX[BATTERYLESS_CODE_OFFSET], BANK[BATTERYLESS_CODE_BANK]
 copy_save_flash_to_sram:
 	;copy code from Flash ROM to SRAM, this is executed during game's intercepted boot
 	ld		a, CART_SRAM_ENABLE
@@ -413,7 +235,7 @@ wram_erase_one_flash_erase_block:
 
 	ld		a, $f0
 	ld		[rRAMB], a
-	ld		a, BATTERYLESS_CODE_BANK
+	ld		a, BANK_X_FREE_SPACE_BANK
 	ld		[rROMB0], a
 	ret
 ENDL
@@ -496,7 +318,7 @@ wram_write_sram_to_flash_rom:
 
 	ld		a, $f0
 	ld		[rRAMB], a
-	ld		a, BATTERYLESS_CODE_BANK
+	ld		a, BANK_X_FREE_SPACE_BANK
 	ld		[rROMB0], a
 
 	ret
@@ -652,18 +474,3 @@ wram_bootleg_read_identifier:
 	ret
 ENDL
 .end
-
-
-IF !DEF(EMBED_SAVEGAME)
-    DEF EMBED_SAVEGAME EQUS "\"src/empty_savegame.sav\""
-ENDC
-; ----------- Embed savegame ------------
-IF DEF(EMBED_SAVEGAME)
-	SECTION "Flash ROM - Embed savegame (first 16kb)", ROMX[$4000], BANK[BANK_FLASH_DATA]
-	INCBIN EMBED_SAVEGAME, 0, 8192
-	IF SRAM_SIZE_32KB
-		INCBIN EMBED_SAVEGAME, 8192, 8192
-		SECTION "Flash ROM - Embed savegame (last 16kb)", ROMX[$4000], BANK[BANK_FLASH_DATA + 1]
-		INCBIN EMBED_SAVEGAME, 16384, 16384
-	ENDC
-ENDC

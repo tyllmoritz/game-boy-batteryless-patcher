@@ -1,0 +1,8 @@
+DEF A_BUTTON   EQU 1 << 0
+DEF B_BUTTON   EQU 1 << 1
+DEF SELECT     EQU 1 << 2
+DEF START      EQU 1 << 3
+DEF D_RIGHT    EQU 1 << 4
+DEF D_LEFT     EQU 1 << 5
+DEF D_UP       EQU 1 << 6
+DEF D_DOWN     EQU 1 << 7

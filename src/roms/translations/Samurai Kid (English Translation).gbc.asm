@@ -73,14 +73,13 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 DEF WRAM_FREE_SPACE EQU $c800
 ; DEF WRAM_BANK_NUMBER EQU $1
 
-IF DEF(_BATTERYLESS)
 
 ; NEW CODE LOCATION
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $3f
-DEF BATTERYLESS_CODE_OFFSET EQU $4000
+DEF BANK_X_FREE_SPACE_BANK EQU $3f
+DEF BANK_X_FREE_SPACE_OFFSET EQU $4000
 
 
 
@@ -93,6 +92,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffaa
 
 
+IF DEF(_BATTERYLESS)
 
 ; SAVEGAME LOCATION IN FLASH ROM
 ; ------------------------------

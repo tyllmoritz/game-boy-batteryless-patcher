@@ -60,6 +60,7 @@ boot_hook:
 	ldh		[$ffe6], a	
 	jp		$016c
 
+ENDC
 
 
 ; BANK 0 ROM FREE SPACE
@@ -99,8 +100,8 @@ DEF WRAM_BANK_NUMBER EQU $2
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $80
-DEF BATTERYLESS_CODE_OFFSET EQU $4000
+DEF BANK_X_FREE_SPACE_BANK EQU $80
+DEF BANK_X_FREE_SPACE_OFFSET EQU $4000
 
 
 
@@ -113,6 +114,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 
 
+IF DEF(_BATTERYLESS)
 
 ; SAVEGAME LOCATION IN FLASH ROM
 ; ------------------------------

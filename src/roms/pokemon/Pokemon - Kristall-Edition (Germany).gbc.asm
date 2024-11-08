@@ -23,7 +23,6 @@ DEF BankX_FreeSpace_1 EQU $74a0
 DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
 
 
-IF DEF(_BATTERYLESS)
 
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
@@ -89,8 +88,8 @@ DEF WRAM_FREE_SPACE EQU $c400 ;using Shadow OAM for now
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $1
-DEF BATTERYLESS_CODE_OFFSET EQU $7550
+DEF BANK_X_FREE_SPACE_BANK EQU $1
+DEF BANK_X_FREE_SPACE_OFFSET EQU $7550
 
 
 
@@ -103,6 +102,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $7550
 DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 
 
+IF DEF(_BATTERYLESS)
 
 ; SAVEGAME LOCATION IN FLASH ROM
 ; ------------------------------

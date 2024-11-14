@@ -1,3 +1,8 @@
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2017-2024 Matt Currie
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+
 ;***************************************************************************
 ;
 ; Checks to see if start or select are pressed. If so, then it will call a

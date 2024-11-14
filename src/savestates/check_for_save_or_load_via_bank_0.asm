@@ -1,3 +1,8 @@
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2017-2024 Matt Currie
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+
 CHECK_FOR_SAVE_OR_LOAD_GAME_VIA_BANK_0:
 
 

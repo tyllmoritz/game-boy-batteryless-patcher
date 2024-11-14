@@ -1,3 +1,8 @@
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2017-2024 Matt Currie
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+
 ;***************************************************************************;
 ;
 ; Calls the relocated_read_from_joypad fuction in a different ROM bank, 

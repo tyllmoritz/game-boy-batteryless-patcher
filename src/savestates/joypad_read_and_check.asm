@@ -1,3 +1,9 @@
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2017-2024 Matt Currie
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+
 ;***************************************************************************
 ; 
 ; Reads the current joypad state into joypad (and joypad_2/joypad_3 if

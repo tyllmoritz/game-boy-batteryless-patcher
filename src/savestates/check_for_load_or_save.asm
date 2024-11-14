@@ -1,3 +1,9 @@
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2017-2024 Matt Currie
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+
 ;***************************************************************************;
 ;
 ; Checks if load/save key combinations are pressed on  the joypad and

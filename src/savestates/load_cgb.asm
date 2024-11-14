@@ -1,4 +1,10 @@
-    ; save the current WRAM bank (has been loaded from the save already)
+    ; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2017-2024 Matt Currie
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+
+; save the current WRAM bank (has been loaded from the save already)
     ldh a, [$70]
     push af
 

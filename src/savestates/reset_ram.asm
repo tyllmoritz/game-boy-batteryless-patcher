@@ -1,3 +1,8 @@
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2017-2024 Matt Currie
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+
 ;***************************************************************************
 ;
 ; Resets the internal RAM at startup. Requires a RESET_RAM_DONE label to

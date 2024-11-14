@@ -29,6 +29,12 @@ Simply press up to advance and down to turn back the time.<br>
 Holding the A button allows you to change it faster."
 
 
+Additional Save-States Patch
+----------------------------
+
+by Matt Currie from this Repository: https://github.com/mattcurrie/gb-save-states
+
+
 How to
 ------
 1. Install rgbds, get [RGBDS](https://rgbds.gbdev.io/install) and unzip it at `rgbds` folder or specify your rgbds folder using `RGBDS=../rgbds/ make`

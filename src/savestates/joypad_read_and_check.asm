@@ -17,7 +17,7 @@ IF DEF(calling_from_vblank)
     ld [ram_access_toggle],a
 
     ; select the ram bank we need for writing the joypad value
-    ld a,[SAVE_STATE_RAM_BANK]
+    ld a,SAVE_STATE_RAM_BANK
     ld [ram_bank_select],a
 
 ENDC

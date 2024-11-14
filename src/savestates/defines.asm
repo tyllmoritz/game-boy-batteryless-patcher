@@ -44,8 +44,7 @@ DEF magic_byte_value EQU $69
 IF DEF(is_cgb)
     ; this is where we put the working stack for the save state,
     ; and any I/O register values, colour palettes, etc
-    SAVE_STATE_RAM_BANK:
-    DB 4
+    DEF SAVE_STATE_RAM_BANK EQU 4
 
     DEF save_state_vram_bank_0 EQU 5
     DEF save_state_vram_bank_1 EQU 6
@@ -54,17 +53,13 @@ IF DEF(is_cgb)
     DEF save_state_wram_bank_45 EQU 9
     DEF save_state_wram_bank_67 EQU 10
 
-    SAVE_STATE_SRAM_BANK_0:
-    DB 11
+    DEF SAVE_STATE_SRAM_BANK_0 EQU 11
 
     DEF save_state_sram_bank_1 EQU 12
     DEF save_state_sram_bank_2 EQU 13
     DEF save_state_sram_bank_3 EQU 14
 
 ELSE
-
-    RAM_SHARING_MAGIC_BYTES:
-    DB "SRAM_CFG"
 
     IF DEF(game_uses_save_ram)
 
@@ -73,14 +68,11 @@ ELSE
 
             ; this is where we put the working stack for the save state,
             ; and any I/O register values, colour palettes, etc
-            SAVE_STATE_RAM_BANK:
-            DB 4
+            DEF SAVE_STATE_RAM_BANK EQU 4
 
-            SAVE_STATE_RAM_BANK_VRAM:
-            DB 5
+            DEF SAVE_STATE_RAM_BANK_VRAM EQU 5
 
-            SAVE_STATE_SRAM_BANK_0:
-            DB 11
+            DEF SAVE_STATE_SRAM_BANK_0 EQU 11
 
             DEF save_state_sram_bank_1 EQU 12
             DEF save_state_sram_bank_2 EQU 13
@@ -89,28 +81,15 @@ ELSE
         ELSE
             ; game uses 8KB of SRAM
 
-            NUMBER_OF_BANKS:
-                DB 4
-            GAME_SRAM:
-                DB 0
-            SAVE_STATE_SRAM_BANK_0:
-                DB 1
-            SAVE_STATE_RAM_BANK_VRAM:
-                DB 2
-            SAVE_STATE_RAM_BANK:
-                DB 3
+            DEF SAVE_STATE_SRAM_BANK_0 EQU 1
+            DEF SAVE_STATE_RAM_BANK_VRAM EQU 2
+            DEF SAVE_STATE_RAM_BANK EQU 3
 
         ENDC
 
     ELSE
-        NUMBER_OF_BANKS:
-            DB 2
-        SAVE_STATE_RAM_BANK_VRAM:
-            DB 2
-        SAVE_STATE_RAM_BANK:
-            DB 3
+        DEF SAVE_STATE_RAM_BANK_VRAM EQU 2
+        DEF SAVE_STATE_RAM_BANK EQU 3
     ENDC
 
-    SAVE_STATE_PATCH_MAGIC_BYTES:
-    DB "SSPMB"
 ENDC

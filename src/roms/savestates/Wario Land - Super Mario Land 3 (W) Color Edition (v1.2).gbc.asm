@@ -12,6 +12,7 @@ DEF current_rom_bank EQU $a8c5
 DEF game_uses_save_ram EQU 1
 DEF uses_mbc5 EQU 1
 
+INCLUDE "src/defines.asm"
 
 ; joypad
 DEF joypad EQU $ff80

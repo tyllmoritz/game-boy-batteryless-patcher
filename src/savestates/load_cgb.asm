@@ -64,7 +64,7 @@
 
     ; restore the save state ram bank.
     ; save state io and stack can now be accessed again
-    ld a, [SAVE_STATE_RAM_BANK]
+    ld a, SAVE_STATE_RAM_BANK
     ld [ram_bank_select], a
     
     ; read wanted speed, and do speedswitch if necessary
@@ -105,7 +105,7 @@ wram01_restore_loop:
 
     ; restore the save state ram bank (again)
     ; save state io and stack can now be accessed again
-    ld a, [SAVE_STATE_RAM_BANK]
+    ld a, SAVE_STATE_RAM_BANK
     ld [ram_bank_select], a
 
     ; load the internal stack pointer

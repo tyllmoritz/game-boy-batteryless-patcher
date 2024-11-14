@@ -4,19 +4,6 @@
 ; ------------------------------------------------------------------------------
 
 
-; ------------- DEFINITIONS --------------
-; include definitions
-INCLUDE "src/hardware.inc" ;https://github.com/gbdev/hardware.inc
-IF DEF(GAME_ENGINE_CURRENT_BANK_OFFSET)
-INCLUDE "src/game_engine_current_bank.asm"
-ENDC
-IF DEF(_NORTC)
-INCLUDE "src/rtc/buttons.inc"
-INCLUDE "src/rtc/wram.asm"
-ENDC
-IF DEF(_BATTERYLESS)
-INCLUDE "src/batteryless/bootleg_types.inc"
-ENDC
 
 ; ---------------- HEADER ----------------
 ; modify game header if needed
@@ -74,4 +61,13 @@ ENDC
 IF DEF(_NORTC)
 INCLUDE "src/rtc/hook_in_updatetime.asm"
 INCLUDE "src/rtc/pokegear_dont-quit_on-A-button.asm"
+ENDC
+
+
+; ---------- WRAM/HRAM/SRAM --------------
+IF DEF(_NORTC)
+INCLUDE "src/rtc/wram.asm"
+ENDC
+IF DEF(GAME_ENGINE_CURRENT_BANK_OFFSET)
+INCLUDE "src/game_engine_current_bank.asm"
 ENDC

@@ -20,7 +20,7 @@ SAVE_GAME:
 IF DEF(game_uses_save_ram)
 
     ld d,0    
-    ld a,[SAVE_STATE_SRAM_BANK_0]
+    ld a,SAVE_STATE_SRAM_BANK_0
     ld e,a
     call COPY_BETWEEN_SRAM_BANKS
 
@@ -77,7 +77,7 @@ ELSE
 
 
     ; straight copy of the vram - switch to the correct ram bank
-    ld a,[SAVE_STATE_RAM_BANK_VRAM]
+    ld a,SAVE_STATE_RAM_BANK_VRAM
     ld [ram_bank_select],a
 
     ld hl,$8000 ; source
@@ -100,7 +100,7 @@ LOAD_GAME:
 
 
 IF DEF(game_uses_save_ram)
-    ld a,[SAVE_STATE_SRAM_BANK_0]
+    ld a,SAVE_STATE_SRAM_BANK_0
     ld d,a
     ld e,0
     call COPY_BETWEEN_SRAM_BANKS
@@ -193,7 +193,7 @@ ELSE
     
     ; restore the VRAM
 
-    ld a,[SAVE_STATE_RAM_BANK_VRAM]
+    ld a,SAVE_STATE_RAM_BANK_VRAM
     ld [ram_bank_select],a
 
 
@@ -234,7 +234,7 @@ RAM_COPY:
 RAM_COPY_DONE:
 
     ; select ram bank (and restore the stack pointer)
-    ld a,[SAVE_STATE_RAM_BANK]
+    ld a,SAVE_STATE_RAM_BANK
     ld [ram_bank_select],a
 
 IF DEF(restore_wave_ram)
@@ -465,7 +465,7 @@ COPY_BETWEEN_SRAM_BANKS_LOOP:
     jr z,COPY_BETWEEN_SRAM_BANKS_LOOP
 
     ; need to switch back the ram bank that has the stack on it before returning
-    ld a,[SAVE_STATE_RAM_BANK]
+    ld a,SAVE_STATE_RAM_BANK
     ld [ram_bank_select],a
 
 

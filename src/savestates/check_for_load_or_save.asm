@@ -61,7 +61,7 @@ IF !DEF(uses_mbc5)
     ld [$6000],a
 ENDC
 
-    ld a,$0a  ; enable access to ram bank
+    ld a,$0A  ; enable access to ram bank
     ld [ram_access_toggle],a
 
 IF DEF(is_cgb)
@@ -83,7 +83,7 @@ SCREEN_OFF_LOOP:
     res 7,[hl]
 
 
-    ld a,[SAVE_STATE_RAM_BANK]
+    ld a,SAVE_STATE_RAM_BANK
     ld [ram_bank_select],a
 
 

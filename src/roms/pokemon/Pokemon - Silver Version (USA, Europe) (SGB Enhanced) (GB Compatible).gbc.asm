@@ -16,6 +16,8 @@
 ;
 ; ------------------------------------------------------------------------------
 
+INCLUDE "src/defines.asm"
+
 DEF FarCall EQU $8
 
 DEF Bank0_FreeSpace_0 EQU $0051

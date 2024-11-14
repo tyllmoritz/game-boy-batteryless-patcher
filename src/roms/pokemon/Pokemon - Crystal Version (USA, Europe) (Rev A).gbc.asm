@@ -16,6 +16,8 @@
 ;
 ; ------------------------------------------------------------------------------
 
+INCLUDE "src/defines.asm"
+
 DEF Bank0_FreeSpace_0 EQU $0063
 DEF Bank0_FreeSpace_1 EQU $0069
 DEF BankX_FreeSpace_1 EQU $747b

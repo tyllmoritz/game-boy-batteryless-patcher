@@ -27,7 +27,7 @@
 
     ; copy WRAM to save state first so we can use it for our purposes
     ld a, save_state_wram_bank_01
-    ld [ram_bank_select], a
+    ld [rRAMB], a
     
     ; select WRAM bank 1
     ld a, 1
@@ -86,14 +86,14 @@ wram01_loop:
     ; restore the save state ram bank.
     ; save state io and stack can now be accessed again
     ld a, SAVE_STATE_RAM_BANK
-    ld [ram_bank_select], a
+    ld [rRAMB], a
 
     jp cgb_common_load_save_end
 
 ; @param a ram bank to write to
 ; @param b first WRAM bank to copy from
 save_consecutive_wram_banks:
-    ld [ram_bank_select], a
+    ld [rRAMB], a
 
     ; select the wram bank
     ld a, b
@@ -115,7 +115,7 @@ save_consecutive_wram_banks:
 
 
 copy_vram_to_sram:
-    ld [ram_bank_select],a
+    ld [rRAMB],a
     ld hl, $8000
     ld de, $a000
     ld bc, $2000

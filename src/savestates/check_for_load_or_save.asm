@@ -61,8 +61,8 @@ IF !DEF(uses_mbc5)
     ld [$6000],a
 ENDC
 
-    ld a,$0A  ; enable access to ram bank
-    ld [ram_access_toggle],a
+    ld a,CART_SRAM_ENABLE  ; enable access to ram bank
+    ld [rRAMG],a
 
 IF DEF(is_cgb)
     ; wait for any in progress G/HDMA
@@ -84,7 +84,7 @@ SCREEN_OFF_LOOP:
 
 
     ld a,SAVE_STATE_RAM_BANK
-    ld [ram_bank_select],a
+    ld [rRAMB],a
 
 
     ld a,c

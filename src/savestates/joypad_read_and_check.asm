@@ -14,11 +14,11 @@ IF DEF(calling_from_vblank)
     push hl
 
     ld a,$0a  ; enable access to ram bank
-    ld [ram_access_toggle],a
+    ld [rRAMG],a
 
     ; select the ram bank we need for writing the joypad value
     ld a,SAVE_STATE_RAM_BANK
-    ld [ram_bank_select],a
+    ld [rRAMB],a
 
 ENDC
 
@@ -61,11 +61,11 @@ IF DEF(calling_from_vblank)
         ELSE
             xor a
         ENDC
-        ld [ram_bank_select],a
+        ld [rRAMB],a
     ELSE
         ; lock access to ram bank
         xor a  
-        ld [ram_access_toggle],a
+        ld [rRAMG],a
     ENDC
 
     pop hl

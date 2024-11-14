@@ -1,19 +1,14 @@
 IF DEF(is_cgb)
 ; CGB requires 128 KB
-DEF RAMSIZE EQU 4
+DEF RAMSIZE EQU CART_SRAM_128KB
 ELSE
     IF DEF(current_sram_bank)
         ; 32 KB SRAM games require 128 KB SRAM
-        DEF RAMSIZE EQU 4
+        DEF RAMSIZE EQU CART_SRAM_128KB
     ELSE
-        DEF RAMSIZE EQU 3
+        DEF RAMSIZE EQU CART_SRAM_32KB
     ENDC
 ENDC
-
-DEF ram_access_toggle EQU $0000
-DEF ram_bank_select EQU $4000
-
-DEF vram_save EQU $A000
 
 DEF bg_color_pal_save EQU $BD00
 DEF obj_color_pal_save EQU $BD40

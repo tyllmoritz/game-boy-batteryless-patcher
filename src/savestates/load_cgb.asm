@@ -65,7 +65,7 @@
     ; restore the save state ram bank.
     ; save state io and stack can now be accessed again
     ld a, SAVE_STATE_RAM_BANK
-    ld [ram_bank_select], a
+    ld [rRAMB], a
     
     ; read wanted speed, and do speedswitch if necessary
     ld a, [io_save + $4d]
@@ -86,7 +86,7 @@ cgb_common_load_save_end:
    
     ; restore wram bank 0 that we've been using for stack, and wram bank 1 too
     ld a, save_state_wram_bank_01
-    ld [ram_bank_select], a
+    ld [rRAMB], a
 
     ; select WRAM bank 1
     ld a, 1
@@ -106,7 +106,7 @@ wram01_restore_loop:
     ; restore the save state ram bank (again)
     ; save state io and stack can now be accessed again
     ld a, SAVE_STATE_RAM_BANK
-    ld [ram_bank_select], a
+    ld [rRAMB], a
 
     ; load the internal stack pointer
     ld a, [internal_stack_pointer_save]
@@ -127,7 +127,7 @@ wram01_restore_loop:
 ; @param a ram bank to read from
 ; @param b first WRAM bank to load into
 load_consecutive_wram_banks:
-    ld [ram_bank_select], a
+    ld [rRAMB], a
 
     ; select the wram bank
     ld a, b
@@ -151,7 +151,7 @@ load_consecutive_wram_banks:
 
 
 copy_sram_to_vram:
-    ld [ram_bank_select],a
+    ld [rRAMB],a
     ld hl, $a000
     ld de, $8000
     ld bc, $2000

@@ -8,17 +8,19 @@
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
 ;
-; ROM "Pokemon - Crystal Version (USA, Europe) (Rev A).gbc"
-; SHA1 f2f52230b536214ef7c9924f483392993e226cfb
+; ROM "Pokemon - Version Cristal (France).gbc"
+; SHA1 c055992b16b7399c687647725cdd1f4f13a2f75c
 ;
-; builds "Pokemon - Crystal Version (USA, Europe) (Rev A) (nortc).gbc" with _NORTC
-; builds "batteryless/Pokemon - Crystal Version (USA, Europe) (Rev A) (nortc) (batteryless).gbc" with _BATTERYLESS _NORTC
+; builds "Pokemon - Version Cristal (France) (nortc).gbc" with _NORTC
+; builds "batteryless/Pokemon - Version Cristal (France) (nortc) (batteryless).gbc" with _NORTC _BATTERYLESS
 ;
 ; ------------------------------------------------------------------------------
 
+
+
 DEF Bank0_FreeSpace_0 EQU $0063
 DEF Bank0_FreeSpace_1 EQU $0069
-DEF BankX_FreeSpace_1 EQU $747b
+DEF BankX_FreeSpace_1 EQU $74a0
 DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
 
 IF DEF(_NORTC)
@@ -33,10 +35,9 @@ DEF wJumptableIndex EQU $cf63
 
 DEF UpdateTime_FixTime_ EQU $05ad
 DEF FixTime_ EQU $061d
-DEF PokegearClock_Joypad_buttoncheck_ EQU $4F45
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4F58
 DEF PokegearClock_Joypad_BANK EQU $24
 ENDC
-
 
 
 ; CARTRIDGE TYPE AND ROM SIZE
@@ -126,6 +127,7 @@ IF DEF(_BATTERYLESS)
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
 DEF BANK_FLASH_DATA EQU $80
+
 
 
 ; EMBED CUSTOM SAVEGAME

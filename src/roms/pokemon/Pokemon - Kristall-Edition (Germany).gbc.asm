@@ -11,7 +11,8 @@
 ; ROM "Pokemon - Kristall-Edition (Germany).gbc"
 ; SHA1 accb584293ba056152f1fd908439b019017ff2fe
 ;
-; builds "batteryless/Pokemon - Kristall-Edition (Germany) (batteryless).gbc" with _BATTERYLESS
+; builds "Pokemon - Kristall-Edition (Germany) (nortc).gbc" with _NORTC
+; builds "batteryless/Pokemon - Kristall-Edition (Germany) (nortc) (batteryless).gbc" with _NORTC _BATTERYLESS
 ;
 ; ------------------------------------------------------------------------------
 
@@ -22,6 +23,21 @@ DEF Bank0_FreeSpace_1 EQU $0069
 DEF BankX_FreeSpace_1 EQU $74a0
 DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
 
+IF DEF(_NORTC)
+DEF FarCall EQU $8
+
+DEF hJoypadDown EQU $ffa4
+DEF wStartDay_ EQU $d4b6
+DEF wScriptFlags EQU $d434
+DEF wSpriteAnimAddrBackup EQU $c3b8
+DEF wSpriteAnimAddrBackup_Value EQU $c3
+DEF wJumptableIndex EQU $cf63
+
+DEF UpdateTime_FixTime_ EQU $05ad
+DEF FixTime_ EQU $061d
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4F61
+DEF PokegearClock_Joypad_BANK EQU $24
+ENDC
 
 
 ; CARTRIDGE TYPE AND ROM SIZE
@@ -79,8 +95,8 @@ DEF BANK0_FREE_SPACE EQU $70
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c400 ;using Shadow OAM for now
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_FREE_SPACE EQU $d462
+DEF WRAM_BANK_NUMBER EQU $5
 
 
 

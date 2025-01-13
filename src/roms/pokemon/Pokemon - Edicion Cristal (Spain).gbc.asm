@@ -8,11 +8,11 @@
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
 ;
-; ROM "Pokemon - Kristall-Edition (Germany).gbc"
-; SHA1 accb584293ba056152f1fd908439b019017ff2fe
+; ROM "Pokemon - Edicion Cristal (Spain).gbc"
+; SHA1 889a06fc0bb863666865aa69def0adf97945ac2a
 ;
-; builds "Pokemon - Kristall-Edition (Germany) (nortc).gbc" with _NORTC
-; builds "batteryless/Pokemon - Kristall-Edition (Germany) (nortc) (batteryless).gbc" with _NORTC _BATTERYLESS
+; builds "Pokemon - Edicion Cristal (Spain) (nortc).gbc" with _NORTC
+; builds "batteryless/Pokemon - Edicion Cristal (Spain) (nortc) (batteryless).gbc" with _NORTC _BATTERYLESS
 ;
 ; ------------------------------------------------------------------------------
 
@@ -35,11 +35,10 @@ DEF wJumptableIndex EQU $cf63
 
 DEF UpdateTime_FixTime_ EQU $05ad
 DEF FixTime_ EQU $061d
-DEF PokegearClock_Joypad_buttoncheck_ EQU $4F61
+DEF PokegearClock_Joypad_buttoncheck_ EQU $4F67
 DEF PokegearClock_Joypad_BANK EQU $24
 ENDC
 
-IF DEF(_BATTERYLESS)
 
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
@@ -105,8 +104,8 @@ DEF WRAM_BANK_NUMBER EQU $5
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $1
-DEF BATTERYLESS_CODE_OFFSET EQU $7550
+DEF BANK_X_FREE_SPACE_BANK EQU $1
+DEF BANK_X_FREE_SPACE_OFFSET EQU $7550
 
 
 
@@ -119,6 +118,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $7550
 DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 
 
+IF DEF(_BATTERYLESS)
 
 ; SAVEGAME LOCATION IN FLASH ROM
 ; ------------------------------

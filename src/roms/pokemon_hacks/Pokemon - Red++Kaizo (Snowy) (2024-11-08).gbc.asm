@@ -1,21 +1,20 @@
 ; ------------------------------------------------------------------------------
-;             Battery-less patch for Pokemon Crystal Ultimate v1.0.7
-;        (find hack here: https://www.pokecommunity.com/threads/441959/)
+;                 Game Boy bootleg battery-less patching template
+;                          by Marc Robledo 2024
 ;
-;                     put settings.asm in src/ and assemble
+;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
 ;
-; ROM "Pokemon - Crystal Ultimate (v1.0.7).gbc"
-; SHA1 4576186318797da5bf55090013bae5a7863fda88
+; ROM "Pokemon - Red++Kaizo (Snowy) (2024-11-08).gbc"
+; SHA1 6b158deed156fc011ce481659b95136843af7952
 ;
-; builds "batteryless/Pokemon - Crystal Ultimate (v1.0.7) (batteryless).gbc" with _BATTERYLESS
+; builds "batteryless/Pokemon - Red++Kaizo (Snowy) (2024-11-08) (batteryless).gbc" with _BATTERYLESS
 ;
 ; ------------------------------------------------------------------------------
-
 
 
 ; CARTRIDGE TYPE AND ROM SIZE
@@ -41,7 +40,7 @@ DEF SRAM_SIZE_32KB EQU 1
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $016e
+DEF GAME_BOOT_OFFSET EQU $00BE
 
 
 
@@ -56,7 +55,7 @@ DEF GAME_BOOT_OFFSET EQU $016e
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $0063
 
 
 
@@ -73,17 +72,16 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_FREE_SPACE EQU $d000
+DEF WRAM_BANK_NUMBER EQU $3
 
-IF DEF(_BATTERYLESS)
 
 ; NEW CODE LOCATION
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $7f
-DEF BATTERYLESS_CODE_OFFSET EQU $7b00
+DEF BANK_X_FREE_SPACE_BANK EQU $3f
+DEF BANK_X_FREE_SPACE_OFFSET EQU $4000
 
 
 
@@ -93,9 +91,10 @@ DEF BATTERYLESS_CODE_OFFSET EQU $7b00
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffb8
 
 
+IF DEF(_BATTERYLESS)
 
 ; SAVEGAME LOCATION IN FLASH ROM
 ; ------------------------------
@@ -103,7 +102,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $80
+DEF BANK_FLASH_DATA EQU $40
 
 
 
@@ -118,16 +117,18 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$4acd], BANK[5]
-;call	$4af6
-call	save_sram_hook
+SECTION "save hook: overwritten code at end of SaveSAVtoSRAM", ROMX[$691B], BANK[$1C]
+; ld a, 0
+; ld [wHaltAudio], a ; ld [$c0fe],a
+call save_sram_hook
 
-SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
+SECTION "Save SRAM hook", ROM0[$3ff0]
 save_sram_hook:
 	;original code
-	call	$4af6
+	ld [$c0fe],a ; wHaltAudio
 	
 	;new code
-	jp	save_sram_to_flash
+	call	save_sram_to_flash
+	ret
 
 ENDC

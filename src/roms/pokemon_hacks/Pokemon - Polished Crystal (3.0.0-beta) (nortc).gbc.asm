@@ -1,20 +1,33 @@
 ; ------------------------------------------------------------------------------
-;                            Pokemon BW3: Genesis
-;        find hack here: https://www.pokecommunity.com/threads/444114/
-;        github: https://github.com/AzureKeys/BW3G/releases/tag/v1.2
-; ------------------------------------------------------------------------------
-; SPDX-FileCopyrightText: 2024 Marc Robledo
-; SPDX-FileCopyrightText: 2024 Robin Bertram
-; SPDX-License-Identifier: GPL-3.0-only OR MIT
-; ------------------------------------------------------------------------------
+;                            Pokemon Polished Crystal
+;    get  polishedcrystal-nortc-3.0.0-beta-22d6f8e1.gbc from
+;    https://github.com/Rangi42/polishedcrystal/releases/tag/v3.0.0-beta
 ;
-; ROM "Pokemon - Black and White 3 Genesis.gbc"
-; SHA1 d55e4cdb84cac430b0faad08c3e4886b8566fbb2
-;
-; builds "batteryless/Pokemon - Black and White 3 Genesis (batteryless).gbc" with _BATTERYLESS
-;
+;    More info at https://github.com/Rangi42/polishedcrystal
 ; ------------------------------------------------------------------------------
-
+; MIT License
+;
+; Copyright (c) 2024 Marc Robledo
+; Copyright (c) 2024 Robin Bertram
+;
+; Permission is hereby granted, free of charge, to any person obtaining a copy
+; of this software and associated documentation files (the "Software"), to deal
+; in the Software without restriction, including without limitation the rights
+; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the Software is
+; furnished to do so, subject to the following conditions:
+;
+; The above copyright notice and this permission notice shall be included in all
+; copies or substantial portions of the Software.
+;
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+; SOFTWARE.
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE
@@ -40,7 +53,7 @@ DEF SRAM_SIZE_32KB EQU 1
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $016e
+DEF GAME_BOOT_OFFSET EQU $0177
 
 
 
@@ -55,7 +68,7 @@ DEF GAME_BOOT_OFFSET EQU $016e
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $63
+DEF BANK0_FREE_SPACE EQU $3d35
 
 
 
@@ -72,7 +85,7 @@ DEF BANK0_FREE_SPACE EQU $63
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $dd00
+DEF WRAM_FREE_SPACE EQU $d562
 DEF WRAM_BANK_NUMBER EQU $5
 
 IF DEF(_BATTERYLESS)
@@ -81,7 +94,7 @@ IF DEF(_BATTERYLESS)
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $80
+DEF BATTERYLESS_CODE_BANK EQU $71
 DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
@@ -92,7 +105,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff93
 
 
 
@@ -102,7 +115,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $84
+DEF BANK_FLASH_DATA EQU $74
 
 
 
@@ -117,16 +130,16 @@ DEF BANK_FLASH_DATA EQU $84
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$4b53], BANK[5]
-;call	$4b7c
-call	save_sram_hook
+SECTION "save_hook: overwrite code at the end of SaveCurrentVersion", ROMX[$4cc5], BANK[$05]
+	; jp CloseSRAM; $2a60
+    jp save_sram_hook
 
-SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
+SECTION "Save SRAM hook", ROM0[$3ff9]
 save_sram_hook:
-	;original code
-	call	$4b7c
-	
-	;new code
-	jp	save_sram_to_flash
-
+    ;original code
+    call $2a60
+    ;new code
+    call save_sram_to_flash
+    ret
 ENDC
+

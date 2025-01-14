@@ -69,8 +69,8 @@ DEF BANK0_FREE_SPACE EQU $63
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
-; DEF WRAM_BANK_NUMBER EQU $1
+DEF WRAM_FREE_SPACE EQU $df00
+DEF WRAM_BANK_NUMBER EQU $5
 
 IF DEF(_BATTERYLESS)
 
@@ -128,7 +128,7 @@ SECTION "Original farcall #4 to _SaveGameData", ROMX[$6361], BANK[$21]
 ;ld hl,	$51dd ; _SaveGameData
 ld hl, 	save_sram_hook
 
-SECTION "Save SRAM hook", ROM0[$00A0]
+SECTION "Save SRAM hook", ROM0[$00F0]
 save_sram_hook:
 	;original code
 	call	$51dd ; _SaveGameData

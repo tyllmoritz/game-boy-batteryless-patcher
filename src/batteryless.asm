@@ -52,8 +52,10 @@ ENDC
 ; define section and label for game's current bank byte
 IF GAME_ENGINE_CURRENT_BANK_OFFSET >= _HRAM
 	SECTION "HRAM - original game's bank switch backup", HRAM[GAME_ENGINE_CURRENT_BANK_OFFSET]
+ELIF GAME_ENGINE_CURRENT_BANK_OFFSET >= _RAMBANK
+	SECTION "WRAMX - original game's bank switch backup", WRAMX[GAME_ENGINE_CURRENT_BANK_OFFSET], BANK[1]
 ELIF GAME_ENGINE_CURRENT_BANK_OFFSET >= _RAM
-	SECTION "WRAM - original game's bank switch backup", WRAM0[GAME_ENGINE_CURRENT_BANK_OFFSET]
+	SECTION "WRAM0 - original game's bank switch backup", WRAM0[GAME_ENGINE_CURRENT_BANK_OFFSET]
 ELSE
 	SECTION "SRAM - original game's bank switch backup", SRAM[GAME_ENGINE_CURRENT_BANK_OFFSET], BANK[0]
 ENDC
@@ -226,6 +228,9 @@ copy_save_flash_to_sram:
 		ld		a, BANK_FLASH_DATA + 1 ;set source ROM bank
 		call	bank_switch_and_copy_from_flash_to_sram
 	ENDC
+
+	ld		a, CART_SRAM_DISABLE
+	ld		[rRAMG], a ;disable SRAM
 	
 	ret
 

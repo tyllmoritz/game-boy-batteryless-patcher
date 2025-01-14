@@ -1,12 +1,16 @@
 ; ------------------------------------------------------------------------------
-;                  Battery-less patch for Pokemon BW3: Genesis
-;        (find hack here: https://www.pokecommunity.com/threads/444114/)
-;
-;                     put settings.asm in src/ and assemble
+;  get CrystalClear_2_5_10_ColorFilter_1_1.bps from https://discord.gg/tskaCr2
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - CrystalClear (2.5.10) (ColorFilter).gbc"
+; SHA1 1a3de02fd0dbad5db0c8151851ecc3c4b96735b1
+;
+; builds "batteryless/Pokemon - CrystalClear (2.5.10) (ColorFilter) (batteryless).gbc" with _BATTERYLESS
+;
 ; ------------------------------------------------------------------------------
 
 
@@ -33,7 +37,7 @@ DEF SRAM_SIZE_32KB EQU 1
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $016e
+DEF GAME_BOOT_OFFSET EQU $0383
 
 
 
@@ -48,7 +52,7 @@ DEF GAME_BOOT_OFFSET EQU $016e
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $63
 
 
 
@@ -75,7 +79,7 @@ IF DEF(_BATTERYLESS)
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
 DEF BATTERYLESS_CODE_BANK EQU $7f
-DEF BATTERYLESS_CODE_OFFSET EQU $7eb0
+DEF BATTERYLESS_CODE_OFFSET EQU $7a50
 
 
 
@@ -110,16 +114,26 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$4b53], BANK[5]
-;call	$4b7c
+; 51B4 SavedTheGame
+SECTION "Original call #1 to _SaveGameData", ROMX[$505D], BANK[$05]
+;call	$51dd ; _SaveGameData
 call	save_sram_hook
+SECTION "Original call #2 to _SaveGameData", ROMX[$507A], BANK[$05]
+;call	$51dd ; _SaveGameData
+call	save_sram_hook
+SECTION "Original call #3 to _SaveGameData", ROMX[$51B4], BANK[$05]
+;call	$51dd ; _SaveGameData
+call	save_sram_hook
+SECTION "Original farcall #4 to _SaveGameData", ROMX[$6361], BANK[$21]
+;ld hl,	$51dd ; _SaveGameData
+ld hl, 	save_sram_hook
 
-SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
+SECTION "Save SRAM hook", ROM0[$00A0]
 save_sram_hook:
 	;original code
-	call	$4b7c
-	
+	call	$51dd ; _SaveGameData
 	;new code
-	jp	save_sram_to_flash
+	call	save_sram_to_flash
+	ret
 
 ENDC

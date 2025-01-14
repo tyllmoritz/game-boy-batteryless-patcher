@@ -1,10 +1,19 @@
 ; ------------------------------------------------------------------------------
-;            Battery-less patch for Samurai Kid (english translation)
-;      (find translation here: https://www.romhacking.net/translations/6297/)
+;                           Shin Pokemon (Green)
+;         find hack here: https://www.romhacking.net/hacks/8189/
+;         source: https://github.com/jojobear13/shinpokered
+;         patch:  https://github.com/jojobear13/shinpokered/releases/tag/1.24.5
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+;
+; ROM "Shin Pokemon (Green) (1.24.5).gbc"
+; SHA1 ece5a732cbaaf268b23f9d946b4ad43ae3784440
+;
+; builds "batteryless/Shin Pokemon (Green) (1.24.5) (batteryless).gbc" with _BATTERYLESS
+;
 ; ------------------------------------------------------------------------------
 
 
@@ -16,14 +25,14 @@
 ; Uncomment the following constants if you want to manually specify cartridge
 ; type and/or size:
 ; DEF CHANGE_CART_TYPE EQU CART_ROM_MBC5_RAM_BAT
-; DEF CHANGE_CART_SIZE EQU CART_ROM_1024KB ;64 banks
+; DEF CHANGE_CART_SIZE EQU CART_ROM_2048KB ;128 banks
 
 
 
 ; SRAM ORIGINAL SIZE
 ; ------------------
 ; Set to 1 if game's original SRAM is 32kb
-DEF SRAM_SIZE_32KB EQU 0
+DEF SRAM_SIZE_32KB EQU 1
 
 
 
@@ -46,7 +55,7 @@ DEF GAME_BOOT_OFFSET EQU $0150
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $0000
 
 
 
@@ -63,7 +72,7 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c800
+DEF WRAM_FREE_SPACE EQU $c340 ;using Shadow OAM for now
 ; DEF WRAM_BANK_NUMBER EQU $1
 
 IF DEF(_BATTERYLESS)
@@ -73,7 +82,7 @@ IF DEF(_BATTERYLESS)
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
 DEF BATTERYLESS_CODE_BANK EQU $3f
-DEF BATTERYLESS_CODE_OFFSET EQU $4000
+DEF BATTERYLESS_CODE_OFFSET EQU $7b00
 
 
 
@@ -83,7 +92,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $4000
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffaa
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffb9
 
 
 
@@ -108,22 +117,17 @@ DEF BANK_FLASH_DATA EQU $40
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROM0[$322a]
-;ld		[$0000], a
-call	save_sram_hook
+SECTION "Original save SRAM subroutine end", ROMX[$7a06],BANK[$1c]
+;call    $7939
+call    save_sram_hook
 ret
 
-SECTION "Save SRAM hook", ROM0[$3f80]
+SECTION "Save SRAM hook", ROMX[$7ff0],BANK[$1c]
 save_sram_hook:
-	;original code
-	ld		[$0000], a
-	
-	;new code
-	call	save_sram_to_flash
-
-	;original code, again, just in case
-	xor		a
-	ld		[$0000], a
-	ret
+    ;original code
+    call    $7939
+    
+    ;new code
+    jp    save_sram_to_flash
 
 ENDC

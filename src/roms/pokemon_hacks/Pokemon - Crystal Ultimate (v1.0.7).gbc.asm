@@ -1,38 +1,22 @@
 ; ------------------------------------------------------------------------------
-;                 Game Boy bootleg battery-less patching template
+;             Battery-less patch for Pokemon Crystal Ultimate v1.0.7
+;        (find hack here: https://www.pokecommunity.com/threads/441959/)
 ;
-;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
+;                     put settings.asm in src/ and assemble
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Crystal Ultimate (v1.0.7).gbc"
+; SHA1 4576186318797da5bf55090013bae5a7863fda88
+;
+; builds "batteryless/Pokemon - Crystal Ultimate (v1.0.7) (batteryless).gbc" with _BATTERYLESS
+;
+; ------------------------------------------------------------------------------
 
 
-
-DEF Bank0_FreeSpace_0 EQU $0063
-DEF Bank0_FreeSpace_1 EQU $0069
-DEF BankX_FreeSpace_1 EQU $747b
-DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
-
-IF DEF(_NORTC)
-DEF FarCall EQU $8
-
-DEF hJoypadDown EQU $ffa4
-DEF wStartDay_ EQU $d4b6
-DEF wScriptFlags EQU $d434
-DEF wSpriteAnimAddrBackup EQU $c3b8
-DEF wSpriteAnimAddrBackup_Value EQU $c3
-DEF wJumptableIndex EQU $cf63
-
-DEF UpdateTime_FixTime_ EQU $05ad
-DEF FixTime_ EQU $061d
-DEF PokegearClock_Joypad_buttoncheck_ EQU $4F45
-DEF PokegearClock_Joypad_BANK EQU $24
-ENDC
-
-
-IF DEF(_BATTERYLESS)
 
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
@@ -72,7 +56,7 @@ DEF GAME_BOOT_OFFSET EQU $016e
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $70
+DEF BANK0_FREE_SPACE EQU $3fc0
 
 
 
@@ -89,17 +73,17 @@ DEF BANK0_FREE_SPACE EQU $70
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $d462 ;using Shadow OAM for now
-DEF WRAM_BANK_NUMBER EQU $5
+DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
+; DEF WRAM_BANK_NUMBER EQU $1
 
-
+IF DEF(_BATTERYLESS)
 
 ; NEW CODE LOCATION
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $1
-DEF BATTERYLESS_CODE_OFFSET EQU $7550
+DEF BATTERYLESS_CODE_BANK EQU $7f
+DEF BATTERYLESS_CODE_OFFSET EQU $7b00
 
 
 
@@ -122,6 +106,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 DEF BANK_FLASH_DATA EQU $80
 
 
+
 ; EMBED CUSTOM SAVEGAME
 ; ---------------------
 ; Just place a sav file next to the input ROM - with the extension .sav instead of .gbc
@@ -133,20 +118,16 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original call #1 to _SaveGameData", ROMX[$4b85], BANK[$05]
-;call	$4c10 ; _SaveGameData
-call	save_sram_hook
-SECTION "Original call #2 to _SaveGameData", ROMX[$4be6], BANK[$05]
-;call	$4c10 ; _SaveGameData
+SECTION "Original save SRAM subroutine end", ROMX[$4acd], BANK[5]
+;call	$4af6
 call	save_sram_hook
 
-SECTION "Save SRAM hook", ROM0[$00F0]
+SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
 save_sram_hook:
 	;original code
-	call	$4c10 ; _SaveGameData
+	call	$4af6
+	
 	;new code
-	call	save_sram_to_flash
-	ret
+	jp	save_sram_to_flash
 
 ENDC
-

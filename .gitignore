@@ -1,6 +1,9 @@
 # ignore local rgbds
 rgbds/*
 
+# ignore build folder
+build/*
+
 # ignore scan_includes
 tools/scan_includes
 

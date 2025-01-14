@@ -1,12 +1,17 @@
 ; ------------------------------------------------------------------------------
-;                 Game Boy bootleg battery-less patching template
-;                          by Marc Robledo 2024
-;
-;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
+;            Battery-less patch for Samurai Kid (english translation)
+;      (find translation here: https://www.romhacking.net/translations/6297/)
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+;
+; ROM "Samurai Kid (English Translation).gbc"
+; SHA1 e03a3a6aedb9051e83a731eeef19536b1d15113a
+;
+; builds "batteryless/Samurai Kid (English Translation) (batteryless).gbc" with _BATTERYLESS
+;
 ; ------------------------------------------------------------------------------
 
 
@@ -18,14 +23,14 @@
 ; Uncomment the following constants if you want to manually specify cartridge
 ; type and/or size:
 ; DEF CHANGE_CART_TYPE EQU CART_ROM_MBC5_RAM_BAT
-; DEF CHANGE_CART_SIZE EQU CART_ROM_2048KB ;128 banks
+; DEF CHANGE_CART_SIZE EQU CART_ROM_1024KB ;64 banks
 
 
 
 ; SRAM ORIGINAL SIZE
 ; ------------------
 ; Set to 1 if game's original SRAM is 32kb
-DEF SRAM_SIZE_32KB EQU 1
+DEF SRAM_SIZE_32KB EQU 0
 
 
 
@@ -33,7 +38,7 @@ DEF SRAM_SIZE_32KB EQU 1
 ; ----------------
 ; Put here the game's boot jp offset found in in 0:0101.
 ; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $0383
+DEF GAME_BOOT_OFFSET EQU $0150
 
 
 
@@ -48,7 +53,7 @@ DEF GAME_BOOT_OFFSET EQU $0383
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $63
+DEF BANK0_FREE_SPACE EQU $3fc0
 
 
 
@@ -65,7 +70,7 @@ DEF BANK0_FREE_SPACE EQU $63
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
+DEF WRAM_FREE_SPACE EQU $c800
 ; DEF WRAM_BANK_NUMBER EQU $1
 
 IF DEF(_BATTERYLESS)
@@ -74,8 +79,8 @@ IF DEF(_BATTERYLESS)
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $7f
-DEF BATTERYLESS_CODE_OFFSET EQU $7a50
+DEF BATTERYLESS_CODE_BANK EQU $3f
+DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
 
@@ -85,7 +90,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $7a50
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffaa
 
 
 
@@ -95,7 +100,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $80
+DEF BANK_FLASH_DATA EQU $40
 
 
 
@@ -110,26 +115,22 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-; 51B4 SavedTheGame
-SECTION "Original call #1 to _SaveGameData", ROMX[$505D], BANK[$05]
-;call	$51dd ; _SaveGameData
+SECTION "Original save SRAM subroutine end", ROM0[$322a]
+;ld		[$0000], a
 call	save_sram_hook
-SECTION "Original call #2 to _SaveGameData", ROMX[$507A], BANK[$05]
-;call	$51dd ; _SaveGameData
-call	save_sram_hook
-SECTION "Original call #3 to _SaveGameData", ROMX[$51B4], BANK[$05]
-;call	$51dd ; _SaveGameData
-call	save_sram_hook
-SECTION "Original farcall #4 to _SaveGameData", ROMX[$6361], BANK[$21]
-;ld hl,	$51dd ; _SaveGameData
-ld hl, 	save_sram_hook
+ret
 
-SECTION "Save SRAM hook", ROM0[$00A0]
+SECTION "Save SRAM hook", ROM0[$3f80]
 save_sram_hook:
 	;original code
-	call	$51dd ; _SaveGameData
+	ld		[$0000], a
+	
 	;new code
 	call	save_sram_to_flash
+
+	;original code, again, just in case
+	xor		a
+	ld		[$0000], a
 	ret
 
 ENDC

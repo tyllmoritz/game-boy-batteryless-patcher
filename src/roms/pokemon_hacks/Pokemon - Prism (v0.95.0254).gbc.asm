@@ -1,12 +1,17 @@
 ; ------------------------------------------------------------------------------
-;                      Battery-less patch for Shin Pokemon
-;           (find hack here: hhttps://www.romhacking.net/hacks/8189/)
-;
-;                     put settings.asm in src/ and assemble
+;                Battery-less patch for Pokemon Prism (v0.95.0254)
+;             (find hack here: https://rainbowdevs.com/title/prism/)
 ; ------------------------------------------------------------------------------
 ; SPDX-FileCopyrightText: 2024 Marc Robledo
 ; SPDX-FileCopyrightText: 2024 Robin Bertram
 ; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
+;
+; ROM "Pokemon - Prism (v0.95.0254).gbc"
+; SHA1 752076692ae3387cf426ce5f51a98c6b60e8df6a
+;
+; builds "batteryless/Pokemon - Prism (v0.95.0254) (batteryless).gbc" with _BATTERYLESS
+;
 ; ------------------------------------------------------------------------------
 
 
@@ -27,13 +32,33 @@
 ; Set to 1 if game's original SRAM is 32kb
 DEF SRAM_SIZE_32KB EQU 1
 
-
+IF DEF(_BATTERYLESS)
 
 ; GAME BOOT OFFSET
 ; ----------------
-; Put here the game's boot jp offset found in in 0:0101.
-; Usually $0150, but could be different depending on game.
-DEF GAME_BOOT_OFFSET EQU $0150
+; we are not defining GAME_BOOT_OFFSET, we are coding our custom hook for the
+; entry point, since this hack does not use the common nop+jp entry point
+SECTION "ROM - Entry point", ROM0[$0100]
+; original code
+; ldh		[$ffe6], a
+; jr		$016c
+nop
+jp		boot_hook
+
+SECTION "ROM - Custom entry point", ROM0[$3fa0]
+boot_hook:
+	;this will be run during boot, will copy savegame from Flash ROM to SRAM
+	push	af
+	ld		a, BANK(copy_save_flash_to_sram)
+	ld		[rROMB0], a
+	call	copy_save_flash_to_sram
+	ld		a, 1
+	ld		[rROMB0], a
+	pop		af
+
+	;original entry point code
+	ldh		[$ffe6], a	
+	jp		$016c
 
 
 
@@ -48,7 +73,7 @@ DEF GAME_BOOT_OFFSET EQU $0150
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $0000
+DEF BANK0_FREE_SPACE EQU $3fc0
 
 
 
@@ -65,17 +90,17 @@ DEF BANK0_FREE_SPACE EQU $0000
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c340 ;using Shadow OAM for now
+DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
 ; DEF WRAM_BANK_NUMBER EQU $1
 
-IF DEF(_BATTERYLESS)
+
 
 ; NEW CODE LOCATION
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $3f
-DEF BATTERYLESS_CODE_OFFSET EQU $7b00
+DEF BATTERYLESS_CODE_BANK EQU $80
+DEF BATTERYLESS_CODE_OFFSET EQU $4000
 
 
 
@@ -85,7 +110,7 @@ DEF BATTERYLESS_CODE_OFFSET EQU $7b00
 ; restore the correct bank when switching back from VBlank.
 ; We will reuse that byte when switching to our battery-less code bank and,
 ; afterwards, so we can restore to the previous bank.
-DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffb9
+DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ff9d
 
 
 
@@ -95,7 +120,7 @@ DEF GAME_ENGINE_CURRENT_BANK_OFFSET EQU $ffb9
 ; IMPORTANT: It must be an entire 64kb flashable block!
 ; If the game has not a free 64kb block, just use a bank bigger than the
 ; original ROM and RGBDS will expand the ROM and fix the header automatically.
-DEF BANK_FLASH_DATA EQU $40
+DEF BANK_FLASH_DATA EQU $84
 
 
 
@@ -110,17 +135,16 @@ DEF BANK_FLASH_DATA EQU $40
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$7a06],BANK[$1c]
-;call    $7939
-call    save_sram_hook
-ret
+SECTION "Original save SRAM subroutine end", ROMX[$4d71], BANK[5]
+;call	$4df3
+call	save_sram_hook
 
-SECTION "Save SRAM hook", ROMX[$7ff0],BANK[$1c]
+SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
 save_sram_hook:
-    ;original code
-    call    $7939
-    
-    ;new code
-    jp    save_sram_to_flash
+	;original code
+	call	$4df3
+	
+	;new code
+	jp	save_sram_to_flash
 
 ENDC

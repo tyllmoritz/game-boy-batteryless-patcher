@@ -1,11 +1,27 @@
-; ------------------------------------------------------------------------------
-;                Battery-less patch for Pokémon Prism (v0.95.0254)
-;             (find hack here: https://rainbowdevs.com/title/prism/)
-;
-;                     put settings.asm in src/ and assemble
-; ------------------------------------------------------------------------------
+; RTC Patch for Pokemon Crystal
+; --------------------------
+; disassembled from:
+; https://www.infine.st/
+; https://www.romhacking.net/hacks/3841/
+; --------------------------
+; This patch allows the player to change the real-time clock while in the Pokegears clock menu.
+; Simply press up to advance and down to turn back the time.
+; Holding the A button allows you to change it faster.
+
+; Patch to "Pokemon - Crystal Version (USA, Europe).gbc"
+; MD5: 9f2922b235a5eeb78d65594e82ef5dde
+; SHA-1: f4cd194bdee0d04ca4eac29e09b8e4e9d818c133
+; SHA-256: d6702e353dcbe2d2c69183046c878ef13a0dae4006e8cdff521cca83dd1582fe
 
 
+
+DEF Bank0_FreeSpace_0 EQU $0063
+DEF Bank0_FreeSpace_1 EQU $0069
+DEF BankX_FreeSpace_1 EQU $74a0
+DEF BankX_FreeSpace_1_BANKNUMBER EQU $1
+
+
+IF DEF(_BATTERYLESS)
 
 ; CARTRIDGE TYPE AND ROM SIZE
 ; ---------------------------
@@ -24,33 +40,13 @@
 ; Set to 1 if game's original SRAM is 32kb
 DEF SRAM_SIZE_32KB EQU 1
 
-IF DEF(_BATTERYLESS)
+
 
 ; GAME BOOT OFFSET
 ; ----------------
-; we are not defining GAME_BOOT_OFFSET, we are coding our custom hook for the
-; entry point, since this hack does not use the common nop+jp entry point
-SECTION "ROM - Entry point", ROM0[$0100]
-; original code
-; ldh		[$ffe6], a
-; jr		$016c
-nop
-jp		boot_hook
-
-SECTION "ROM - Custom entry point", ROM0[$3fa0]
-boot_hook:
-	;this will be run during boot, will copy savegame from Flash ROM to SRAM
-	push	af
-	ld		a, BANK(copy_save_flash_to_sram)
-	ld		[rROMB0], a
-	call	copy_save_flash_to_sram
-	ld		a, 1
-	ld		[rROMB0], a
-	pop		af
-
-	;original entry point code
-	ldh		[$ffe6], a	
-	jp		$016c
+; Put here the game's boot jp offset found in in 0:0101.
+; Usually $0150, but could be different depending on game.
+DEF GAME_BOOT_OFFSET EQU $016e
 
 
 
@@ -65,7 +61,7 @@ boot_hook:
 ; store anything there.
 ; In the worst scenario, you will need to carefully move some code/data to
 ; other banks.
-DEF BANK0_FREE_SPACE EQU $3fc0
+DEF BANK0_FREE_SPACE EQU $70
 
 
 
@@ -82,7 +78,7 @@ DEF BANK0_FREE_SPACE EQU $3fc0
 ; If it's a color-only game, $d000-$dfff is banked.
 ; Therefore you have to add a WRAM_BANK_NUMBER to use this address space.
 ; Additionaly - the Stack has to be in WRAM0 $c000-$cfff for this to work
-DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
+DEF WRAM_FREE_SPACE EQU $c400 ;using Shadow OAM for now
 ; DEF WRAM_BANK_NUMBER EQU $1
 
 
@@ -91,8 +87,8 @@ DEF WRAM_FREE_SPACE EQU $c440 ;using Shadow OAM for now
 ; -----------------
 ; We need ~80 bytes (~0x50 bytes) to store our new battery-less save code.
 ; As stated above, they will be copied from ROM to WRAM0 when trying to save.
-DEF BATTERYLESS_CODE_BANK EQU $7f
-DEF BATTERYLESS_CODE_OFFSET EQU $7eb0
+DEF BATTERYLESS_CODE_BANK EQU $1
+DEF BATTERYLESS_CODE_OFFSET EQU $7550
 
 
 
@@ -127,16 +123,20 @@ DEF BANK_FLASH_DATA EQU $80
 ; ------------------------
 ; We need to find the original game's saving subroutine and hook our new code
 ; afterwards.
-SECTION "Original save SRAM subroutine end", ROMX[$4d71], BANK[5]
-;call	$4df3
+SECTION "Original call #1 to _SaveGameData", ROMX[$4b85], BANK[$05]
+;call	$4c10 ; _SaveGameData
+call	save_sram_hook
+SECTION "Original call #2 to _SaveGameData", ROMX[$4be6], BANK[$05]
+;call	$4c10 ; _SaveGameData
 call	save_sram_hook
 
-SECTION "Save SRAM hook", ROMX[$7ff8], BANK[5]
+SECTION "Save SRAM hook", ROM0[$00F0]
 save_sram_hook:
 	;original code
-	call	$4df3
-	
+	call	$4c10 ; _SaveGameData
 	;new code
-	jp	save_sram_to_flash
+	call	save_sram_to_flash
+	ret
 
 ENDC
+

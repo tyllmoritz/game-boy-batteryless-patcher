@@ -1,10 +1,13 @@
 ; ------------------------------------------------------------------------------
-;                  Battery-less patch for Pokémon BW3: Genesis
+;                  Battery-less patch for Pokemon BW3: Genesis
 ;        (find hack here: https://www.pokecommunity.com/threads/444114/)
 ;
 ;                     put settings.asm in src/ and assemble
 ; ------------------------------------------------------------------------------
-
+; SPDX-FileCopyrightText: 2024 Marc Robledo
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE

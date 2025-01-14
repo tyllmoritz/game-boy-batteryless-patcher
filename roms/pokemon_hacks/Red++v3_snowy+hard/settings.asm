@@ -4,7 +4,10 @@
 ;
 ;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
 ; ------------------------------------------------------------------------------
-
+; SPDX-FileCopyrightText: 2024 Marc Robledo
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE

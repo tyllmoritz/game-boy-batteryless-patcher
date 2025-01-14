@@ -15,6 +15,18 @@ For now, it's only compatible with WR/AAA/A9 cart types and 64kb flashable secto
 Thanks to BennVennElectronic and Lesserkuma for their help!
 
 
+Additional RTC Patch
+--------------------
+
+disassembled from:<br>
+https://www.infine.st/<br>
+https://www.romhacking.net/hacks/4450/<br>
+
+Thank you infinest for the original patch.
+
+"This patch allows the player to change the real-time clock while in the Pokegears clock menu.<br>
+Simply press up to advance and down to turn back the time.<br>
+Holding the A button allows you to change it faster."
 
 
 How to
@@ -31,9 +43,18 @@ Note: when saving, the game might freeze a few frames. This is normal, it's just
 
 
 
-
-
 Examples
 --------
 You can find `settings.asm` examples for some ROM hacks and translations in the `roms/` folder.<br/>
 Just create a new folder in `roms/*/` - if both a `settings.asm` and a `input.gbc`file are present, it will be build by `make`
+
+
+
+Licences
+--------
+```src/rtc.asm``` is licenced under the GPLv3 licence.<br>
+```src/hardware.inc``` is licenced under the CC0-1.0 licence.<br>
+```src/batteryless.asm```, ```src/main``` and all ```settings.asm``` files are licenced under the MIT licence.<br>
+That means, that this Project is a a whole is licenced under the GPLv3,<br>
+while individual source files are dual-licenced with their original licence and the GPLv3<br>
+Most source files should have SPDX licence headers.

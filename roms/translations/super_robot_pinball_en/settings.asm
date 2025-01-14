@@ -1,10 +1,11 @@
 ; ------------------------------------------------------------------------------
 ;         Battery-less patch for Super Robot Pinball (english translation)
 ;      (find translation here: https://www.romhacking.net/translations/6402/)
-;
-;      both settings.asm and embed_savegame.sav files must be placed at src/
 ; ------------------------------------------------------------------------------
-
+; SPDX-FileCopyrightText: 2024 Marc Robledo
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE

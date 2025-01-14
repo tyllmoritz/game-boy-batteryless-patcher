@@ -1,10 +1,13 @@
 ; ------------------------------------------------------------------------------
-;                      Battery-less patch for Shin Pokémon
+;                      Battery-less patch for Shin Pokemon
 ;           (find hack here: hhttps://www.romhacking.net/hacks/8189/)
 ;
 ;                     put settings.asm in src/ and assemble
 ; ------------------------------------------------------------------------------
-
+; SPDX-FileCopyrightText: 2024 Marc Robledo
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE

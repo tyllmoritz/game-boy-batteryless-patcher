@@ -1,17 +1,12 @@
-; RTC Patch for Pokemon Crystal
-; --------------------------
-; disassembled from:
-; https://www.infine.st/
-; https://www.romhacking.net/hacks/3841/
-; --------------------------
-; This patch allows the player to change the real-time clock while in the Pokegears clock menu.
-; Simply press up to advance and down to turn back the time.
-; Holding the A button allows you to change it faster.
-
-; Patch to "Pokemon - Crystal Version (USA, Europe).gbc"
-; MD5: 9f2922b235a5eeb78d65594e82ef5dde
-; SHA-1: f4cd194bdee0d04ca4eac29e09b8e4e9d818c133
-; SHA-256: d6702e353dcbe2d2c69183046c878ef13a0dae4006e8cdff521cca83dd1582fe
+; ------------------------------------------------------------------------------
+;                 Game Boy bootleg battery-less patching template
+;
+;    More info at https://github.com/marcrobledo/game-boy-batteryless-patcher
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2024 Marc Robledo
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
 
 
 

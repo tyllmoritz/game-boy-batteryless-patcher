@@ -1,8 +1,12 @@
 ; ------------------------------------------------------------------------------
-;             Battery-less patch for Pokémon Crystal Ultimate v1.0.7
+;             Battery-less patch for Pokemon Crystal Ultimate v1.0.7
 ;        (find hack here: https://www.pokecommunity.com/threads/441959/)
 ;
 ;                     put settings.asm in src/ and assemble
+; ------------------------------------------------------------------------------
+; SPDX-FileCopyrightText: 2024 Marc Robledo
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
 ; ------------------------------------------------------------------------------
 
 

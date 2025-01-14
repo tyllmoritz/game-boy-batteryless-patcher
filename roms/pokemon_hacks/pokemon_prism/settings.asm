@@ -1,10 +1,11 @@
 ; ------------------------------------------------------------------------------
-;                Battery-less patch for Pokémon Prism (v0.95.0254)
+;                Battery-less patch for Pokemon Prism (v0.95.0254)
 ;             (find hack here: https://rainbowdevs.com/title/prism/)
-;
-;                     put settings.asm in src/ and assemble
 ; ------------------------------------------------------------------------------
-
+; SPDX-FileCopyrightText: 2024 Marc Robledo
+; SPDX-FileCopyrightText: 2024 Robin Bertram
+; SPDX-License-Identifier: GPL-3.0-only OR MIT
+; ------------------------------------------------------------------------------
 
 
 ; CARTRIDGE TYPE AND ROM SIZE
